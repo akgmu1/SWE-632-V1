@@ -17,5 +17,12 @@ export default defineConfig(({ mode }) => {
         '@': fileURLToPath(new URL('./src', import.meta.url))
       },
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: ['mixed-decls', 'if-function', 'color-functions', 'global-builtin', 'import']
+        },
+      }
+    },
   }
 })

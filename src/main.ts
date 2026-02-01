@@ -1,4 +1,9 @@
-import './assets/main.css'
+// import './assets/main.css'
+
+// const bootstrap = require('bootstrap')
+
+import './scss/custom.scss'
+import 'bootstrap'
 
 import { createApp } from 'vue'
 import App from './App.vue'
