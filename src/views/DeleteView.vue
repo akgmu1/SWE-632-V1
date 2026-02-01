@@ -1,40 +1,33 @@
 <script setup lang="ts">
-import router from '@/router';
-import { getTodo, todoExists, type Todo } from '@/todos';
+import router from '@/router'
+import { getTodo, todoExists, type Todo } from '@/todos'
 
 interface Props {
-    todoId: number;
+  todoId: number
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
 if (!Number.isInteger(props.todoId)) {
-    router.push("/");
+  router.push('/')
 }
 
 if (!todoExists(props.todoId)) {
-    router.push("/");
+  router.push('/')
 }
 
-const todo: Todo = getTodo(props.todoId)!;
+const todo: Todo = getTodo(props.todoId)!
 
 async function onYes() {
-    await router.push("/");
+  await router.push('/')
 }
-
 </script>
 
 <template>
-    <main>
-        <div>
-            Are sure you want to delete this todo?
-        </div>
-        <RouterLink to="/">
-            No
-        </RouterLink>
-        <br>
-        <button @click="onYes" class="btn btn-link p-0">
-            Yes
-        </button>
-    </main>
+  <main>
+    <div>Are sure you want to delete this todo?</div>
+    <RouterLink to="/"> No </RouterLink>
+    <br />
+    <button @click="onYes" class="btn btn-link p-0">Yes</button>
+  </main>
 </template>
