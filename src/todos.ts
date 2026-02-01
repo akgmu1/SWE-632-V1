@@ -4,7 +4,7 @@ export interface Todo {
   completed: boolean
 }
 
-const TODOS: Todo[] = [
+let TODOS: Todo[] = [
   {
     id: 1,
     description: 'Task 1',
@@ -49,4 +49,8 @@ export function addTodo(description: string): Todo {
 
   TODOS.push(newTodo)
   return newTodo
+}
+
+export function removeTodo(id: number) {
+  TODOS = TODOS.filter((e) => e.id !== id)
 }
