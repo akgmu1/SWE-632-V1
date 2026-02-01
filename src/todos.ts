@@ -1,48 +1,54 @@
 export interface Todo {
-    id: number;
-    description: string;
+  id: number
+  description: string
+  completed: boolean
 }
 
 const TODOS: Todo[] = [
-    {
-        id: 1,
-        description: "Task 1"
-    },
-    {
-        id: 2,
-        description: "Task 2"
-    },
-    {
-        id: 3,
-        description: "Task 3"
-    }
+  {
+    id: 1,
+    description: 'Task 1',
+    completed: false,
+  },
+  {
+    id: 2,
+    description: 'Task 2',
+    completed: false,
+  },
+  {
+    id: 3,
+    description: 'Task 3',
+    completed: false,
+  },
 ]
 
 export function getTodos(): Todo[] {
-    return TODOS;
+  return TODOS
 }
 
 export function getTodo(id: number): Todo | undefined {
-    return getTodos().find(element => {
-        return element.id === id
-    });
+  return getTodos().find((element) => {
+    return element.id === id
+  })
 }
 
 export function todoExists(id: number): boolean {
-    return getTodos().find(element => {
-        return element.id === id
-    }) !== undefined;
+  return (
+    getTodos().find((element) => {
+      return element.id === id
+    }) !== undefined
+  )
 }
 
 export function addTodo(description: string): Todo {
-  const todos = getTodos();
-
   const newTodo: Todo = {
     id: Date.now(),
     description,
-  };
+    completed: false
+  }
 
-  todos.push(newTodo);
-  return newTodo;
+  TODOS.push(newTodo)
+  return newTodo
 }
+
 

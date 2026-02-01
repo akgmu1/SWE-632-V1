@@ -1,27 +1,26 @@
 <script setup lang="ts">
-import router from '@/router';
-import { getTodo, todoExists, type Todo } from '@/todos';
+import router from '@/router'
+import { getTodo, todoExists, type Todo } from '@/todos'
 
 interface Props {
-    todoId: number;
+  todoId: number
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
 if (!Number.isInteger(props.todoId)) {
-    router.push("/");
+  router.push('/')
 }
 
 if (!todoExists(props.todoId)) {
-    router.push("/");
+  router.push('/')
 }
 
-const todo: Todo = getTodo(props.todoId)!;
+const todo: Todo = getTodo(props.todoId)!
 
 async function onYes() {
-    await router.push("/");
+  await router.push('/')
 }
-
 </script>
 
 <template>

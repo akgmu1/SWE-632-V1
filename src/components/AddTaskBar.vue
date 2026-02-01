@@ -19,7 +19,7 @@ function onAdd() {
 </script>
 
 <template>
-  <div class="d-flex justify-content-center mb-4">
+  
     <div class="input-group w-50">
       <input
         v-model="taskText"
@@ -32,5 +32,4 @@ function onAdd() {
         +
       </button>
     </div>
-  </div>
 </template>
