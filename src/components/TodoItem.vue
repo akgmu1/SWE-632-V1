@@ -11,6 +11,11 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+function onChange(checked: boolean) {
+  props.todo.completed = checked
+  emit('toggle', props.todo.id, props.todo.completed)
+}
 </script>
 
 <template>
@@ -19,10 +24,7 @@ const props = defineProps<Props>()
       class="form-check-input m-0"
       type="checkbox"
       :checked="props.todo.completed"
-      @change="
-        props.todo.completed = ($event.target as HTMLInputElement).checked
-        emit('toggle', props.todo.id, props.todo.completed)
-      "
+      @change="onChange(($event.target as HTMLInputElement).checked)"
     />
 
     <span :class="{ 'text-decoration-line-through text-secondary': props.todo.completed }">
