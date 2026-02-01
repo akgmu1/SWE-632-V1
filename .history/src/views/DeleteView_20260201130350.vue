@@ -43,5 +43,9 @@ async function onYes() {
         Yes
       </button>
     </div>
+
+    <p class="text-muted mt-3 small">
+      Prototype only – delete is not permanent.
+    </p>
   </main>
 </template>

@@ -3,12 +3,10 @@ import TodoItem from "@/components/TodoItem.vue";
 import { getTodos, type Todo } from "@/todos";
 import { ref, type Ref } from "vue";
 import AddTaskBar from '@/components/AddTaskBar.vue'
-const todos: Ref<Todo[]> = ref([...getTodos()])
-
+const todos: Ref<Todo[]> = ref(getTodos());
 function refreshTodos() {
-  todos.value = [...getTodos()]
+  todos.value = getTodos();
 }
-
 </script>
 
 <template>

@@ -33,16 +33,3 @@ export function todoExists(id: number): boolean {
         return element.id === id
     }) !== undefined;
 }
-
-export function addTodo(description: string): Todo {
-  const todos = getTodos();
-
-  const newTodo: Todo = {
-    id: Date.now(),
-    description,
-  };
-
-  todos.push(newTodo);
-  return newTodo;
-}
-

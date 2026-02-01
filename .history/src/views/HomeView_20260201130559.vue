@@ -2,13 +2,8 @@
 import TodoItem from "@/components/TodoItem.vue";
 import { getTodos, type Todo } from "@/todos";
 import { ref, type Ref } from "vue";
-import AddTaskBar from '@/components/AddTaskBar.vue'
-const todos: Ref<Todo[]> = ref([...getTodos()])
 
-function refreshTodos() {
-  todos.value = [...getTodos()]
-}
-
+const todos: Ref<Todo[]> = ref(getTodos());
 </script>
 
 <template>
@@ -25,9 +20,7 @@ function refreshTodos() {
       />
     </div>
 
-    <AddTaskBar @added="refreshTodos" />
-
-
+    <AddTaskBar />
     <div class="d-flex align-items-center justify-content-between mb-2">
       <h2 class="h5 mb-0">Todos</h2>
       <span class="badge text-bg-secondary">{{ todos.length }}</span>
