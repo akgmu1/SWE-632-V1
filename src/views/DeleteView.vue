@@ -18,7 +18,7 @@ if (!todoExists(props.todoId)) {
 
 const todo: Todo = getTodo(props.todoId)!;
 
-async function onConfirm() {
+async function onYes() {
     await router.push("/");
 }
 
@@ -27,14 +27,14 @@ async function onConfirm() {
 <template>
     <main>
         <div>
-            Here: {{ todo.description }}
+            Are sure you want to delete this todo?
         </div>
         <RouterLink to="/">
-            Cancel
+            No
         </RouterLink>
         <br>
-        <button @click="onConfirm" class="btn btn-link p-0">
-            Confirm
+        <button @click="onYes" class="btn btn-link p-0">
+            Yes
         </button>
     </main>
 </template>

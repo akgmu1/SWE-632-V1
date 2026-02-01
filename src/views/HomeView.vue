@@ -10,6 +10,7 @@ const todos: Ref<Todo[]> = ref(getTodos());
 <template>
   <main>
     Todos:
+    <hr class="my-2">
     <TodoItem v-for="todo in todos" :key="todo.id" :todo-id="todo.id" />
   </main>
 </template>

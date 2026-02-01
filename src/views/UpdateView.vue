@@ -26,8 +26,13 @@ async function onUpdate() {
 
 <template>
     <main>
-        <div>
-            Here: {{ todo.description }}
+        <div class="container pt-4">
+        <form class="form-floating">
+            <input class="form-control" id="floatingInputValue" :placeholder="todo.description"
+                :value="todo.description">
+            <label for="floatingInputValue">Update Description</label>
+        </form>
+
         </div>
         <RouterLink to="/">
             Cancel
