@@ -44,11 +44,9 @@ export function addTodo(description: string): Todo {
   const newTodo: Todo = {
     id: Date.now(),
     description,
-    completed: false
+    completed: false,
   }
 
   TODOS.push(newTodo)
   return newTodo
 }
-
-

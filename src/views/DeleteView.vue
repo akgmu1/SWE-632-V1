@@ -25,22 +25,14 @@ async function onYes() {
 
 <template>
   <main class="container py-4 text-center">
-    <p class="mb-2">
-      Are you sure you want to delete this todo?
-    </p>
+    <p class="mb-2">Are you sure you want to delete this todo?</p>
 
-    <p class="fw-semibold mb-3">
-      "{{ todo.description }}"
-    </p>
+    <p class="fw-semibold mb-3">"{{ todo.description }}"</p>
 
     <div class="d-flex justify-content-center gap-3">
-      <RouterLink to="/" class="btn btn-outline-secondary">
-        No
-      </RouterLink>
+      <RouterLink to="/" class="btn btn-outline-secondary"> No </RouterLink>
 
-      <button @click="onYes" class="btn btn-danger">
-        Yes
-      </button>
+      <button @click="onYes" class="btn btn-danger">Yes</button>
     </div>
   </main>
 </template>

@@ -12,11 +12,15 @@ const q = computed(() => search.value.trim().toLowerCase())
 const search = ref('')
 
 const activeTodos = computed(() =>
-  todos.value.filter((t) => !t.completed && (!q.value || t.description.toLowerCase().includes(q.value)))
+  todos.value.filter(
+    (t) => !t.completed && (!q.value || t.description.toLowerCase().includes(q.value)),
+  ),
 )
 
 const completedTodos = computed(() =>
-  todos.value.filter((t) => t.completed && (!q.value || t.description.toLowerCase().includes(q.value)))
+  todos.value.filter(
+    (t) => t.completed && (!q.value || t.description.toLowerCase().includes(q.value)),
+  ),
 )
 
 function refreshTodos() {
@@ -35,12 +39,11 @@ function toggleTodo(id: number, completed: boolean) {
       <h1 class="h3 mb-1">To Do List</h1>
     </div>
     <div class="d-flex justify-content-center mb-4">
-       <SearchBar v-model="search" />
+      <SearchBar v-model="search" />
     </div>
-     <div class="d-flex justify-content-center mb-4">
-       <AddTaskBar @added="refreshTodos" />
-     </div>
-  
+    <div class="d-flex justify-content-center mb-4">
+      <AddTaskBar @added="refreshTodos" />
+    </div>
 
     <h5 class="mt-3">Active</h5>
     <div class="vstack gap-2">

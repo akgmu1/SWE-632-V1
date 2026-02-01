@@ -19,17 +19,14 @@ function onAdd() {
 </script>
 
 <template>
-  
-    <div class="input-group w-50">
-      <input
-        v-model="taskText"
-        type="text"
-        class="form-control"
-        placeholder="Add a new task..."
-        @keyup.enter="onAdd"
-      />
-      <button class="btn btn-outline-secondary" type="button" @click="onAdd">
-        +
-      </button>
-    </div>
+  <div class="input-group w-50">
+    <input
+      v-model="taskText"
+      type="text"
+      class="form-control"
+      placeholder="Add a new task..."
+      @keyup.enter="onAdd"
+    />
+    <button class="btn btn-outline-secondary" type="button" @click="onAdd">+</button>
+  </div>
 </template>

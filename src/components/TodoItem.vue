@@ -20,7 +20,7 @@ const props = defineProps<Props>()
       type="checkbox"
       :checked="props.todo.completed"
       @change="
-        props.todo.completed = ($event.target as HTMLInputElement).checked;
+        props.todo.completed = ($event.target as HTMLInputElement).checked
         emit('toggle', props.todo.id, props.todo.completed)
       "
     />

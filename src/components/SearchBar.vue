@@ -13,13 +13,11 @@ function onInput(e: Event) {
 </script>
 
 <template>
-  
-    <input
-      class="form-control w-50 text-center"
-      type="text"
-      placeholder="Search tasks..."
-      :value="props.modelValue"
-      @input="onInput"
-    />
-
+  <input
+    class="form-control w-50 text-center"
+    type="text"
+    placeholder="Search tasks..."
+    :value="props.modelValue"
+    @input="onInput"
+  />
 </template>
