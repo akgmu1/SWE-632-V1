@@ -7,7 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   return {
-    base: mode === "production" ? "/SWE-632" : "/",
+    base: mode === "production" ? "/SWE-632-V1" : "/",
     plugins: [
       vue(),
       vueDevTools(),
