@@ -36,10 +36,10 @@ function toggleTodo(id: number, completed: boolean) {
 <template>
   <main class="container mx-auto py-4">
     <div class="mb-3 text-2xl">To Do List</div>
-    <div class="flex justify-center mb-4">
+    <div class="mb-4 flex justify-center">
       <SearchBar v-model="search" />
     </div>
-    <div class="flex justify-center mb-4">
+    <div class="mb-4 flex justify-center">
       <AddTaskBar @added="refreshTodos" />
     </div>
 
@@ -49,8 +49,7 @@ function toggleTodo(id: number, completed: boolean) {
       <TodoItem v-for="todo in activeTodos" :key="todo.id" :todo="todo" @toggle="toggleTodo" />
     </div>
 
-
-    <div class="text-xl mt-10">Completed</div>
+    <div class="mt-10 text-xl">Completed</div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
       <TodoItem v-for="todo in completedTodos" :key="todo.id" :todo="todo" @toggle="toggleTodo" />

@@ -20,7 +20,7 @@ function onChange(checked: boolean) {
 </script>
 
 <template>
-  <div class="flex align-center gap-2 py-1">
+  <div class="align-center flex gap-2 py-1">
     <input
       class="checkbox m-0"
       type="checkbox"
@@ -28,11 +28,11 @@ function onChange(checked: boolean) {
       @change="onChange(($event.target as HTMLInputElement).checked)"
     />
 
-    <span :class="{ 'line-through text-base-content/70': props.todo.completed }">
+    <span :class="{ 'text-base-content/70 line-through': props.todo.completed }">
       Todo: {{ props.todo.description }}
     </span>
 
-    <div class="ms-auto tooltip">
+    <div class="tooltip ms-auto">
       <div class="tooltip-content">Settings</div>
       <RouterLink class="link" :to="`/update/${props.todo.id}`">
         <AdjustmentsHorizontalIcon class="size-6" />

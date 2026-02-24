@@ -23,7 +23,7 @@ function onAdd() {
     <input
       v-model="taskText"
       type="text"
-      class="input w-full join-item"
+      class="input join-item w-full"
       placeholder="Add a new task..."
       @keyup.enter="onAdd"
     />

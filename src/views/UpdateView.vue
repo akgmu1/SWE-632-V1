@@ -68,7 +68,7 @@ async function onUpdate() {
       </div>
       <div class="flex justify-center py-3">
         <RouterLink to="/" class="btn btn-outline"> Cancel </RouterLink>
-        <button @click="onUpdate" class="btn btn-success mx-3">Update</button>
+        <button @click="onUpdate" class="btn mx-3 btn-success">Update</button>
         <RouterLink :to="`/delete/${props.todoId}`" class="btn btn-error"> Delete </RouterLink>
       </div>
     </div>

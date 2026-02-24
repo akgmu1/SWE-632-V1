@@ -28,7 +28,7 @@ async function onYes() {
   <main class="container mx-auto py-4 text-center">
     <p class="mb-2">Are you sure you want to delete this todo?</p>
 
-    <p class="font-semibold mb-3">"{{ todo.description }}"</p>
+    <p class="mb-3 font-semibold">"{{ todo.description }}"</p>
 
     <div class="flex justify-center gap-3">
       <RouterLink to="/" class="btn btn-outline"> No </RouterLink>
