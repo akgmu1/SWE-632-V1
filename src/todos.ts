@@ -1,56 +1,102 @@
-export interface Todo {
-  id: number
-  description: string
-  completed: boolean
-}
+import { z } from 'zod'
 
-let TODOS: Todo[] = [
-  {
-    id: 1,
-    description: 'Task 1',
-    completed: false,
-  },
-  {
-    id: 2,
-    description: 'Task 2',
-    completed: false,
-  },
-  {
-    id: 3,
-    description: 'Task 3',
-    completed: false,
-  },
-]
+const TodoSchema = z.object({
+  id: z.number(),
+  description: z.string(),
+  completed: z.boolean(),
+})
 
-export function getTodos(): Todo[] {
-  return TODOS
-}
+const TodoArraySchema = z.array(TodoSchema)
 
-export function getTodo(id: number): Todo | undefined {
-  return getTodos().find((element) => {
-    return element.id === id
-  })
-}
+export type Todo = z.infer<typeof TodoSchema>
 
-export function todoExists(id: number): boolean {
-  return (
-    getTodos().find((element) => {
-      return element.id === id
-    }) !== undefined
-  )
-}
+const CreateTodoSchema = TodoSchema.omit({ id: true })
+export type CreateTodo = z.infer<typeof CreateTodoSchema>
 
-export function addTodo(description: string): Todo {
-  const newTodo: Todo = {
-    id: Date.now(),
-    description,
-    completed: false,
+const TodoSettingsSchema = z.object({
+  currentId: z.number().default(0),
+})
+
+type TodoSettings = z.infer<typeof TodoSettingsSchema>
+
+const TODO_SETTINGS_KEY = 'todo-settings'
+const TODOS_KEY = 'todos'
+
+// PERF: Some sort of cache to not have to constantly read from storage
+
+export class TodoManager {
+  private static settings(): TodoSettings {
+    return TodoSettingsSchema.parse(JSON.parse(localStorage.getItem(TODO_SETTINGS_KEY) ?? '{}'))
   }
 
-  TODOS.push(newTodo)
-  return newTodo
-}
+  private static updateSettings(settings: TodoSettings) {
+    localStorage.setItem(TODO_SETTINGS_KEY, JSON.stringify(settings))
+  }
 
-export function removeTodo(id: number) {
-  TODOS = TODOS.filter((e) => e.id !== id)
+  public static createTodo(todo: CreateTodo): number {
+    let settings = this.settings()
+    const id = settings.currentId
+    settings.currentId += 1
+    this.updateSettings(settings)
+
+    let todos = this.getTodos()
+    todos.push({
+      id,
+      ...todo,
+    })
+    console.log(todos)
+    this.writeTodos(todos)
+
+    return id
+  }
+
+  private static writeTodos(todos: Todo[]) {
+    localStorage.setItem(TODOS_KEY, JSON.stringify(todos))
+  }
+
+  public static todoExists(id: number): boolean {
+    return (
+      this.getTodos().find((element) => {
+        return element.id === id
+      }) !== undefined
+    )
+  }
+
+  public static getTodo(id: number): Todo | undefined {
+    return this.getTodos().find((element) => {
+      return element.id === id
+    })
+  }
+
+  public static getTodos(): Todo[] {
+    let storage = localStorage.getItem(TODOS_KEY)
+    if (storage == null) {
+      // Empty, so can populate with default
+      localStorage.setItem(TODOS_KEY, '[]')
+      return []
+    }
+
+    try {
+      return TodoArraySchema.parse(JSON.parse(storage))
+    } catch (e) {
+      // TODO: An error occurred, so some sort of recovery is needed
+      return []
+    }
+  }
+
+  public static updateTodo(todo: Todo) {
+    this.writeTodos(
+      this.getTodos().map((e) => {
+        if (e.id == todo.id) {
+          return todo
+        } else {
+          return e
+        }
+      }),
+    )
+  }
+
+  public static removeTodo(id: number) {
+    this.writeTodos(this.getTodos().filter((e) => e.id !== id))
+  }
 }

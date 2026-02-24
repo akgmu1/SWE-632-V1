@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import { getTodo, removeTodo, todoExists, type Todo } from '@/todos'
+import { TodoManager, type Todo } from '@/todos'
 
 interface Props {
   todoId: number
@@ -12,14 +12,14 @@ if (!Number.isInteger(props.todoId)) {
   router.push('/')
 }
 
-if (!todoExists(props.todoId)) {
+if (!TodoManager.todoExists(props.todoId)) {
   router.push('/')
 }
 
-const todo: Todo = getTodo(props.todoId)!
+const todo: Todo = TodoManager.getTodo(props.todoId)!
 
 async function onYes() {
-  removeTodo(props.todoId)
+  TodoManager.removeTodo(props.todoId)
   await router.push('/')
 }
 </script>

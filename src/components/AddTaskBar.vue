@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { TodoManager } from '@/todos'
 import { ref } from 'vue'
-import { addTodo } from '@/todos'
 
 const emit = defineEmits<{
   (e: 'added'): void
@@ -12,7 +12,10 @@ function onAdd() {
   const text = taskText.value.trim()
   if (!text) return
 
-  addTodo(text)
+  TodoManager.createTodo({
+    description: text,
+    completed: false,
+  })
   taskText.value = ''
   emit('added')
 }

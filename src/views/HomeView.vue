@@ -3,10 +3,10 @@ import AddTaskBar from '@/components/AddTaskBar.vue'
 import TodoItem from '@/components/TodoItem.vue'
 import SearchBar from '@/components/SearchBar.vue'
 
-import { getTodos, type Todo } from '@/todos'
 import { computed, ref, type Ref } from 'vue'
+import { TodoManager, type Todo } from '@/todos'
 
-const todos: Ref<Todo[]> = ref(getTodos())
+const todos: Ref<Todo[]> = ref(TodoManager.getTodos())
 
 const q = computed(() => search.value.trim().toLowerCase())
 const search = ref('')
@@ -24,12 +24,18 @@ const completedTodos = computed(() =>
 )
 
 function refreshTodos() {
-  todos.value = [...getTodos()]
+  todos.value = [...TodoManager.getTodos()]
 }
 
 function toggleTodo(id: number, completed: boolean) {
   const t = todos.value.find((x) => x.id === id)
-  if (t) t.completed = completed
+  if (t) {
+    t.completed = completed
+    TodoManager.updateTodo({
+      ...TodoManager.getTodo(id)!,
+      completed,
+    })
+  }
 }
 </script>
 

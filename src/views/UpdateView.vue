@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import { getTodo, todoExists, type Todo } from '@/todos'
+import { TodoManager, type Todo } from '@/todos'
 import { computed, onMounted, ref, type Ref } from 'vue'
 
 interface Props {
@@ -13,11 +13,11 @@ if (!Number.isInteger(props.todoId)) {
   router.push('/')
 }
 
-if (!todoExists(props.todoId)) {
+if (!TodoManager.todoExists(props.todoId)) {
   router.push('/')
 }
 
-const todo: Todo = getTodo(props.todoId)!
+const todo: Todo = TodoManager.getTodo(props.todoId)!
 
 const description: Ref<string> = ref(todo.description)
 const description_error_str: Ref<string> = ref('')
@@ -42,7 +42,10 @@ async function onUpdate() {
     return
   }
 
-  todo.description = description.value
+  TodoManager.updateTodo({
+    ...todo,
+    description: description.value,
+  })
   await router.push('/')
 }
 </script>
@@ -54,7 +57,6 @@ async function onUpdate() {
         <span class="label">Description</span>
         <div class="flex justify-center">
           <input
-            class="w-50"
             :class="{ 'input-error': description_error_str }"
             :placeholder="todo.description"
             @input="checkDescription"
