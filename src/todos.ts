@@ -25,6 +25,11 @@ const TODOS_KEY = 'todos'
 // PERF: Some sort of cache to not have to constantly read from storage
 
 export class TodoManager {
+  public static reset() {
+    localStorage.removeItem(TODO_SETTINGS_KEY)
+    localStorage.removeItem(TODOS_KEY)
+  }
+
   private static settings(): TodoSettings {
     return TodoSettingsSchema.parse(JSON.parse(localStorage.getItem(TODO_SETTINGS_KEY) ?? '{}'))
   }
