@@ -14,7 +14,7 @@ function onInput(e: Event) {
 
 <template>
   <input
-    class="form-control w-50 text-center"
+    class="input w-1/2 text-center"
     type="text"
     placeholder="Search tasks..."
     :value="props.modelValue"

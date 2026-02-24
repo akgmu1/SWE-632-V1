@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '@/views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: () => import('../views/NotFoundView.vue'),
+      component: () => import('@/views/NotFoundView.vue'),
     },
     {
       path: '/',
@@ -17,12 +17,12 @@ const router = createRouter({
     {
       path: '/update/:id',
       props: (route) => ({ todoId: Number(route.params.id) }),
-      component: () => import('../views/UpdateView.vue'),
+      component: () => import('@/views/UpdateView.vue'),
     },
     {
       path: '/delete/:id',
       props: (route) => ({ todoId: Number(route.params.id) }),
-      component: () => import('../views/DeleteView.vue'),
+      component: () => import('@/views/DeleteView.vue'),
     },
   ],
 })

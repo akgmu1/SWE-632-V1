@@ -12,7 +12,10 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "bootstrap": "^5.3.8",
+    "@heroicons/vue": "^2.2.0",
+    "@tailwindcss/vite": "^4.2.1",
+    "daisyui": "^5.5.19",
+    "tailwindcss": "^4.2.1",
     "vue": "^3.5.27",
     "vue-router": "^4.6.4"
   },
@@ -23,7 +26,6 @@
     "@vue/tsconfig": "^0.8.1",
     "npm-run-all2": "^8.0.4",
     "prettier": "3.8.1",
-    "sass-embedded": "^1.97.3",
     "typescript": "~5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-vue-devtools": "^8.0.5",

@@ -1,4 +1,4 @@
 <template>
   Page Not Found
-  <RouterLink to="/"> Go Back Home </RouterLink>
+  <RouterLink to="/" class="link link-primary"> Go Back Home </RouterLink>
 </template>

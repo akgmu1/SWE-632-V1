@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import type { Todo } from '@/todos'
+import { AdjustmentsHorizontalIcon } from '@heroicons/vue/24/solid'
 
 const emit = defineEmits<{
   (e: 'toggle', id: number, completed: boolean): void
@@ -19,18 +20,23 @@ function onChange(checked: boolean) {
 </script>
 
 <template>
-  <div class="d-flex align-items-center gap-2 py-1">
+  <div class="flex align-center gap-2 py-1">
     <input
-      class="form-check-input m-0"
+      class="checkbox m-0"
       type="checkbox"
       :checked="props.todo.completed"
       @change="onChange(($event.target as HTMLInputElement).checked)"
     />
 
-    <span :class="{ 'text-decoration-line-through text-secondary': props.todo.completed }">
+    <span :class="{ 'line-through text-base-content/70': props.todo.completed }">
       Todo: {{ props.todo.description }}
     </span>
 
-    <RouterLink class="ms-auto" :to="`/update/${props.todo.id}`">Update</RouterLink>
+    <div class="ms-auto tooltip">
+      <div class="tooltip-content">Settings</div>
+      <RouterLink class="link" :to="`/update/${props.todo.id}`">
+        <AdjustmentsHorizontalIcon class="size-6" />
+      </RouterLink>
+    </div>
   </div>
 </template>

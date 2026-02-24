@@ -49,26 +49,27 @@ async function onUpdate() {
 
 <template>
   <main>
-    <div class="container pt-4 text-center">
-      <label for="floatingInputValue" class="form-label">Update Description</label>
-      <div class="d-flex justify-content-center">
-        <input
-          id="floatingInputValue"
-          class="form-control w-50"
-          :class="{ 'is-invalid': description_error_str }"
-          :placeholder="todo.description"
-          @input="checkDescription"
-          @keyup.enter="onUpdate"
-          v-model="description"
-        />
-      </div>
-      <div :hidden="!description_error_str" class="text-danger">
+    <div class="container mx-auto pt-4 text-center">
+      <label class="input">
+        <span class="label">Description</span>
+        <div class="flex justify-center">
+          <input
+            class="w-50"
+            :class="{ 'input-error': description_error_str }"
+            :placeholder="todo.description"
+            @input="checkDescription"
+            @keyup.enter="onUpdate"
+            v-model="description"
+          />
+        </div>
+      </label>
+      <div :hidden="!description_error_str" class="text-error">
         Error: {{ description_error_str }}
       </div>
-      <div class="d-flex justify-content-center py-3">
-        <RouterLink to="/" class="btn btn-outline-secondary"> Cancel </RouterLink>
+      <div class="flex justify-center py-3">
+        <RouterLink to="/" class="btn btn-outline"> Cancel </RouterLink>
         <button @click="onUpdate" class="btn btn-success mx-3">Update</button>
-        <RouterLink :to="`/delete/${props.todoId}`" class="btn btn-danger"> Delete </RouterLink>
+        <RouterLink :to="`/delete/${props.todoId}`" class="btn btn-error"> Delete </RouterLink>
       </div>
     </div>
   </main>

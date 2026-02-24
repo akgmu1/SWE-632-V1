@@ -1,6 +1,4 @@
-import './scss/custom.scss'
-import 'bootstrap'
-
+import './style.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'

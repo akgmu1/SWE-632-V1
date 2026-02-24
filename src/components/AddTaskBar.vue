@@ -19,14 +19,14 @@ function onAdd() {
 </script>
 
 <template>
-  <div class="input-group w-50">
+  <div class="join w-1/2">
     <input
       v-model="taskText"
       type="text"
-      class="form-control"
+      class="input w-full join-item"
       placeholder="Add a new task..."
       @keyup.enter="onAdd"
     />
-    <button class="btn btn-outline-secondary" type="button" @click="onAdd">+</button>
+    <button class="btn join-item" type="button" @click="onAdd">+</button>
   </div>
 </template>
