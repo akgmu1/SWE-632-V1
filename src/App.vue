@@ -6,7 +6,7 @@ const IS_DEV = import.meta.env.DEV
 </script>
 <template>
   <RouterView />
-  <div v-if="IS_DEV" class="fixed right-6 bottom-6 z-50">
+  <div v-if="IS_DEV" class="fixed top-6 left-6 z-50">
     <RouterLink to="/debug" class="btn btn-circle shadow-lg btn-primary">
       <BugAntIcon class="size-6" />
     </RouterLink>

@@ -5,6 +5,16 @@ import SearchBar from '@/components/SearchBar.vue'
 
 import { computed, ref, type Ref } from 'vue'
 import { TodoManager, type Todo } from '@/todos'
+import { HomeState } from '@/enums'
+import {
+  AdjustmentsVerticalIcon,
+  Bars3Icon,
+  PlusIcon,
+  TrashIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/solid'
+
+const homeState: Ref<HomeState> = ref(HomeState.Default)
 
 const todos: Ref<Todo[]> = ref(TodoManager.getTodos())
 
@@ -37,6 +47,18 @@ function toggleTodo(id: number, completed: boolean) {
     })
   }
 }
+
+function todoClicked(id: number) {
+  switch (homeState.value) {
+    case HomeState.Delete: {
+      homeState.value = HomeState.Default
+      TodoManager.removeTodo(id)
+      refreshTodos()
+      break
+    }
+  }
+  console.log(id)
+}
 </script>
 
 <template>
@@ -52,13 +74,58 @@ function toggleTodo(id: number, completed: boolean) {
     <div class="text-xl">Active</div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
-      <TodoItem v-for="todo in activeTodos" :key="todo.id" :todo="todo" @toggle="toggleTodo" />
+      <TodoItem
+        v-for="todo in activeTodos"
+        :key="todo.id"
+        :todo="todo"
+        :home-state="homeState"
+        @toggle="toggleTodo"
+        @clicked="todoClicked"
+      />
     </div>
 
     <div class="mt-10 text-xl">Completed</div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
-      <TodoItem v-for="todo in completedTodos" :key="todo.id" :todo="todo" @toggle="toggleTodo" />
+      <TodoItem
+        v-for="todo in completedTodos"
+        :key="todo.id"
+        :todo="todo"
+        :home-state="homeState"
+        @toggle="toggleTodo"
+        @clicked="todoClicked"
+      />
+    </div>
+
+    <div v-if="homeState == HomeState.Default" class="fab fixed right-6 bottom-6 z-50 fab-flower">
+      <!-- a focusable div with tabindex is necessary to work on all browsers. role="button" is necessary for accessibility -->
+      <div tabindex="0" role="button" class="btn btn-circle btn-lg btn-primary">
+        <Bars3Icon class="size-6" />
+      </div>
+
+      <!-- Main Action button replaces the original button when FAB is open -->
+      <div class="fab-close btn btn-circle btn-soft btn-lg btn-error">
+        <XMarkIcon class="size-6" />
+      </div>
+
+      <!-- buttons that show up when FAB is open -->
+      <button class="btn btn-circle btn-lg btn-success">
+        <PlusIcon class="size-6" />
+      </button>
+      <button class="btn btn-circle btn-lg">
+        <AdjustmentsVerticalIcon class="size-6" />
+      </button>
+      <button class="btn btn-circle btn-lg btn-error" @click="homeState = HomeState.Delete">
+        <TrashIcon class="size-6" />
+      </button>
+    </div>
+    <div v-else>
+      <div
+        class="btn fixed right-6 bottom-6 z-50 btn-circle btn-lg btn-error"
+        @click="homeState = HomeState.Default"
+      >
+        <XMarkIcon class="size-6" />
+      </div>
     </div>
   </main>
 </template>
