@@ -38,6 +38,10 @@ const completedTodos = computed(() =>
   ),
 )
 
+const filteredDeletedTodos = computed(() =>
+  deletedTodos.value.filter((t) => !q.value || t.description.toLowerCase().includes(q.value)),
+)
+
 function refreshTodos() {
   todos.value = [...TodoManager.getTodos()]
   deletedTodos.value = [...TodoManager.getRecentlyDeletedTodos()]
@@ -146,7 +150,7 @@ function clearRecentlyDeletedTodos() {
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
       <TodoDeletedItem
-        v-for="todo in deletedTodos"
+        v-for="todo in filteredDeletedTodos"
         :key="todo.id"
         :todo="todo"
         :home-state="homeState"
