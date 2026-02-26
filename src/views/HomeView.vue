@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import AddTaskBar from '@/components/AddTaskBar.vue'
 import TodoItem from '@/components/TodoItem.vue'
 import SearchBar from '@/components/SearchBar.vue'
 
-import { computed, ref, type Ref } from 'vue'
+import { computed, onMounted, ref, type Ref } from 'vue'
 import { TodoManager, type CreateTodo, type Todo } from '@/todos'
 import { HomeState } from '@/enums'
 import {
@@ -13,8 +12,8 @@ import {
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/vue/24/solid'
-import BaseModal from '@/components/BaseModal.vue'
 import AddTaskModal from '@/components/AddTaskModal.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
@@ -56,16 +55,39 @@ function toggleTodo(id: number, completed: boolean) {
   }
 }
 
+const selectedTodo: Ref<Todo | undefined> = ref(undefined)
+
+const confirmDeleteModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> = ref(null)
+function confirmDelete() {
+  TodoManager.removeTodo(selectedTodo.value!.id)
+  refreshTodos()
+}
+
+const confirmRecoverModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> = ref(null)
+function confirmRecover() {
+  TodoManager.revertRecentlyDeletedTodo(selectedTodo.value!.id)
+  refreshTodos()
+}
+
 function todoClicked(id: number, isDeleted: boolean) {
   if (isDeleted) {
-    TodoManager.revertRecentlyDeletedTodo(id)
-    refreshTodos()
+    switch (homeState.value) {
+      case HomeState.Default: {
+        selectedTodo.value = TodoManager.getRecentlyDeletedTodo(id)
+        if (selectedTodo.value !== undefined) {
+          confirmRecoverModalRef.value!.showModal()
+        }
+        break
+      }
+    }
   } else {
     switch (homeState.value) {
       case HomeState.Delete: {
         homeState.value = HomeState.Default
-        TodoManager.removeTodo(id)
-        refreshTodos()
+        selectedTodo.value = TodoManager.getTodo(id)
+        if (selectedTodo.value !== undefined) {
+          confirmDeleteModalRef.value!.showModal()
+        }
         break
       }
     }
@@ -83,6 +105,8 @@ function addButton() {
   addTaskModalRef.value!.showModal()
 }
 
+const confirmClearRecentlyDeleteModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> =
+  ref(null)
 function clearRecentlyDeletedTodos() {
   TodoManager.clearRecentlyDeletedTodos()
   refreshTodos()
@@ -133,7 +157,7 @@ function clearRecentlyDeletedTodos() {
       <button
         v-if="deletedTodos.length > 0"
         class="btn btn-accent"
-        @click="clearRecentlyDeletedTodos"
+        @click="confirmClearRecentlyDeleteModalRef!.showModal"
       >
         Clear
       </button>
@@ -181,5 +205,22 @@ function clearRecentlyDeletedTodos() {
       </div>
     </div>
     <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />
+    <ConfirmationModal
+      ref="confirmClearRecentlyDeleteModalRef"
+      title="Clear Recently Deleted"
+      @confirm="clearRecentlyDeletedTodos"
+    >
+      Are you sure you want to clear the
+      <span class="font-bold">{{ deletedTodos.length }}</span> recently deleted
+      {{ deletedTodos.length == 1 ? 'todo' : 'todos' }}?
+    </ConfirmationModal>
+    <ConfirmationModal ref="confirmDeleteModalRef" title="Delete Todo" @confirm="confirmDelete">
+      Are you sure you want to delete todo?
+      <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
+    </ConfirmationModal>
+    <ConfirmationModal ref="confirmRecoverModalRef" title="Recover Todo" @confirm="confirmRecover">
+      Are you sure you want to recover todo?
+      <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
+    </ConfirmationModal>
   </main>
 </template>

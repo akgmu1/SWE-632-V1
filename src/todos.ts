@@ -78,6 +78,12 @@ export class TodoManager {
     })
   }
 
+  public static getRecentlyDeletedTodo(id: number): Todo | undefined {
+    return this.getRecentlyDeletedTodos().find((element) => {
+      return element.id === id
+    })
+  }
+
   public static getTodos(): Todo[] {
     let storage = localStorage.getItem(TODOS_KEY)
     if (storage == null) {
