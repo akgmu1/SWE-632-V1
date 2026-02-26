@@ -28,6 +28,7 @@ defineExpose({
 
 const description: Ref<string> = ref('')
 const descriptionErrorStr: Ref<string> = ref('')
+const hadError = computed(() => descriptionErrorStr.value)
 
 async function checkDescription() {
   descriptionErrorStr.value = ''
@@ -43,7 +44,7 @@ onMounted(() => {
   checkDescription()
 })
 
-function onConfirm() {
+function onConfirm(): void {
   description.value = description.value.trim()
   checkDescription()
   if (descriptionErrorStr.value) {
@@ -57,7 +58,13 @@ function onConfirm() {
 </script>
 
 <template>
-  <ConfirmationModal ref="modalRef" title="Add Task" @confirm="onConfirm">
+  <ConfirmationModal
+    ref="modalRef"
+    title="Update Task"
+    @confirm="onConfirm"
+    :should-close="!hadError"
+    :positive="true"
+  >
     <div class="container mx-auto pt-4 text-center">
       <label class="input">
         <span class="label">Description</span>
@@ -72,5 +79,6 @@ function onConfirm() {
       </label>
       <div :hidden="!descriptionErrorStr" class="text-error">Error: {{ descriptionErrorStr }}</div>
     </div>
+    <template #confirm> Update </template>
   </ConfirmationModal>
 </template>

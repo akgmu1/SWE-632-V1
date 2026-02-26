@@ -3,13 +3,15 @@ import { ref, type Ref } from 'vue'
 import BaseModal from './BaseModal.vue'
 
 interface Emits {
-  (e: 'confirm'): boolean
+  (e: 'confirm'): void
 }
 
 const emits = defineEmits<Emits>()
 
 interface Props {
   title: string
+  shouldClose?: boolean
+  positive?: boolean
 }
 
 const props = defineProps<Props>()
@@ -28,8 +30,12 @@ defineExpose({
 function onClick(confirm: boolean) {
   if (confirm) {
     emits('confirm')
+    if (props.shouldClose) {
+      modalRef.value!.close()
+    }
+  } else {
+    modalRef.value!.close()
   }
-  modalRef.value!.close()
 }
 </script>
 
@@ -41,7 +47,13 @@ function onClick(confirm: boolean) {
     <div class="flex justify-center">
       <button class="btn btn-outline" @click="onClick(false)">Cancel</button>
       <div class="px-4"></div>
-      <button class="btn btn-error" @click="onClick(true)">Confirm</button>
+      <button
+        class="btn"
+        :class="{ 'btn-success': props.positive, 'btn-error': !props.positive }"
+        @click="onClick(true)"
+      >
+        <slot name="confirm"> Confirm </slot>
+      </button>
     </div>
   </BaseModal>
 </template>

@@ -230,10 +230,12 @@ function clearRecentlyDeletedTodos() {
     <ConfirmationModal ref="confirmDeleteModalRef" title="Delete Todo" @confirm="confirmDelete">
       Are you sure you want to delete todo?
       <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
+      <template #confirm> Delete </template>
     </ConfirmationModal>
     <ConfirmationModal ref="confirmRecoverModalRef" title="Recover Todo" @confirm="confirmRecover">
       Are you sure you want to recover todo?
       <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
+      <template #confirm> Recover </template>
     </ConfirmationModal>
   </main>
 </template>
