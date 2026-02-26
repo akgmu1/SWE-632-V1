@@ -14,6 +14,9 @@ import {
   XMarkIcon,
 } from '@heroicons/vue/24/solid'
 
+const addModal: Ref<HTMLDialogElement | null> = ref(null)
+const addInput: Ref<HTMLInputElement | null> = ref(null)
+
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
 const todos: Ref<Todo[]> = ref(TodoManager.getTodos())
@@ -58,6 +61,26 @@ function todoClicked(id: number) {
     }
   }
   console.log(id)
+}
+
+const taskText = ref('')
+
+function onAdd() {
+  const text = taskText.value.trim()
+  if (!text) return
+
+  TodoManager.createTodo({
+    description: text,
+    completed: false,
+  })
+  taskText.value = ''
+  refreshTodos()
+  addModal.value!.close()
+}
+
+function addButton() {
+  addModal.value!.showModal()
+  addInput.value!.focus()
 }
 </script>
 
@@ -109,7 +132,7 @@ function todoClicked(id: number) {
       </div>
 
       <!-- buttons that show up when FAB is open -->
-      <button class="btn btn-circle btn-lg btn-success">
+      <button class="btn btn-circle btn-lg btn-success" @click="addButton">
         <PlusIcon class="size-6" />
       </button>
       <button class="btn btn-circle btn-lg">
@@ -127,5 +150,33 @@ function todoClicked(id: number) {
         <XMarkIcon class="size-6" />
       </div>
     </div>
+
+    <!-- TODO: Abstract this into generic modal component -->
+    <dialog ref="addModal" class="modal">
+      <div class="modal-box">
+        <form method="dialog">
+          <button class="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm">
+            <XMarkIcon class="size-6" />
+          </button>
+        </form>
+        <h3 class="text-lg font-bold">Add Task</h3>
+        <p class="py-4">Press ESC key or click outside to close</p>
+
+        <div class="join w-full">
+          <input
+            ref="addInput"
+            v-model="taskText"
+            type="text"
+            class="input join-item w-full"
+            placeholder="Add a new task..."
+            @keyup.enter="onAdd"
+          />
+          <button class="btn join-item" type="button" @click="onAdd">+</button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
   </main>
 </template>
