@@ -14,7 +14,9 @@ interface Props {
   positive?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  shouldClose: true,
+})
 
 const modalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
 
