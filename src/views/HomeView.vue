@@ -4,7 +4,7 @@ import TodoItem from '@/components/TodoItem.vue'
 import SearchBar from '@/components/SearchBar.vue'
 
 import { computed, ref, type Ref } from 'vue'
-import { TodoManager, type Todo } from '@/todos'
+import { TodoManager, type CreateTodo, type Todo } from '@/todos'
 import { HomeState } from '@/enums'
 import {
   AdjustmentsVerticalIcon,
@@ -14,8 +14,7 @@ import {
   XMarkIcon,
 } from '@heroicons/vue/24/solid'
 import BaseModal from '@/components/BaseModal.vue'
-
-const addInput: Ref<HTMLInputElement | null> = ref(null)
+import AddTaskModal from '@/components/AddTaskModal.vue'
 
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
@@ -73,26 +72,15 @@ function todoClicked(id: number, isDeleted: boolean) {
   }
 }
 
-const taskText = ref('')
+const addTaskModalRef: Ref<InstanceType<typeof AddTaskModal> | null> = ref(null)
 
-const addModalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
-
-function onAdd() {
-  const text = taskText.value.trim()
-  if (!text) return
-
-  TodoManager.createTodo({
-    description: text,
-    completed: false,
-  })
-  taskText.value = ''
+function addTodo(todo: CreateTodo) {
+  TodoManager.createTodo(todo)
   refreshTodos()
-  addModalRef.value!.closeModal()
 }
 
 function addButton() {
-  addModalRef.value!.showModal()
-  addInput.value!.focus()
+  addTaskModalRef.value!.showModal()
 }
 
 function clearRecentlyDeletedTodos() {
@@ -192,21 +180,6 @@ function clearRecentlyDeletedTodos() {
         <XMarkIcon class="size-6" />
       </div>
     </div>
-
-    <BaseModal ref="addModalRef" title="Add Task">
-      <div class="join w-full">
-        <input
-          ref="addInput"
-          v-model="taskText"
-          type="text"
-          class="input join-item w-full"
-          placeholder="Add a new task..."
-          @keyup.enter="onAdd"
-        />
-        <button class="btn join-item" type="button" @click="onAdd">
-          <PlusIcon class="size-4" />
-        </button>
-      </div>
-    </BaseModal>
+    <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />
   </main>
 </template>

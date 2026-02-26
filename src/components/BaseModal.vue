@@ -14,17 +14,13 @@ const props = defineProps<Props>()
 
 const dialogRef: Ref<HTMLDialogElement | null> = ref(null)
 
-function showModal() {
-  dialogRef.value!.showModal()
-}
-
-function closeModal() {
-  dialogRef.value!.close()
-}
-
 defineExpose({
-  showModal,
-  closeModal,
+  showModal: () => {
+    dialogRef.value!.showModal()
+  },
+  close: () => {
+    dialogRef.value!.close()
+  },
 })
 </script>
 

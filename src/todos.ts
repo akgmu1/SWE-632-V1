@@ -55,7 +55,6 @@ export class TodoManager {
       id,
       ...todo,
     })
-    console.log(todos)
     this.writeTodos(todos)
 
     return id
