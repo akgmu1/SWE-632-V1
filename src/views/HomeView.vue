@@ -13,9 +13,8 @@ import {
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/vue/24/solid'
-import TodoDeletedItem from '@/components/TodoDeletedItem.vue'
+import BaseModal from '@/components/BaseModal.vue'
 
-const addModal: Ref<HTMLDialogElement | null> = ref(null)
 const addInput: Ref<HTMLInputElement | null> = ref(null)
 
 const homeState: Ref<HomeState> = ref(HomeState.Default)
@@ -58,23 +57,25 @@ function toggleTodo(id: number, completed: boolean) {
   }
 }
 
-function todoClicked(id: number) {
-  switch (homeState.value) {
-    case HomeState.Delete: {
-      homeState.value = HomeState.Default
-      TodoManager.removeTodo(id)
-      refreshTodos()
-      break
+function todoClicked(id: number, isDeleted: boolean) {
+  if (isDeleted) {
+    TodoManager.revertRecentlyDeletedTodo(id)
+    refreshTodos()
+  } else {
+    switch (homeState.value) {
+      case HomeState.Delete: {
+        homeState.value = HomeState.Default
+        TodoManager.removeTodo(id)
+        refreshTodos()
+        break
+      }
     }
   }
 }
 
-function recentlyDeletedTodoClicked(id: number) {
-  TodoManager.revertRecentlyDeletedTodo(id)
-  refreshTodos()
-}
-
 const taskText = ref('')
+
+const addModalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
 
 function onAdd() {
   const text = taskText.value.trim()
@@ -86,11 +87,11 @@ function onAdd() {
   })
   taskText.value = ''
   refreshTodos()
-  addModal.value!.close()
+  addModalRef.value!.closeModal()
 }
 
 function addButton() {
-  addModal.value!.showModal()
+  addModalRef.value!.showModal()
   addInput.value!.focus()
 }
 
@@ -118,6 +119,7 @@ function clearRecentlyDeletedTodos() {
         :key="todo.id"
         :todo="todo"
         :home-state="homeState"
+        :is-deleted="false"
         @toggle="toggleTodo"
         @clicked="todoClicked"
       />
@@ -131,6 +133,7 @@ function clearRecentlyDeletedTodos() {
         :key="todo.id"
         :todo="todo"
         :home-state="homeState"
+        :is-deleted="false"
         @toggle="toggleTodo"
         @clicked="todoClicked"
       />
@@ -149,12 +152,13 @@ function clearRecentlyDeletedTodos() {
     </div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
-      <TodoDeletedItem
+      <TodoItem
         v-for="todo in filteredDeletedTodos"
         :key="todo.id"
         :todo="todo"
         :home-state="homeState"
-        @clicked="recentlyDeletedTodoClicked"
+        :is-deleted="true"
+        @clicked="todoClicked"
       />
     </div>
 
@@ -189,34 +193,20 @@ function clearRecentlyDeletedTodos() {
       </div>
     </div>
 
-    <!-- TODO: Abstract this into generic modal component -->
-    <dialog ref="addModal" class="modal">
-      <div class="modal-box">
-        <form method="dialog">
-          <button class="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm">
-            <XMarkIcon class="size-6" />
-          </button>
-        </form>
-        <h3 class="text-lg font-bold">Add Task</h3>
-        <p class="py-4">Press ESC key or click outside to close</p>
-
-        <div class="join w-full">
-          <input
-            ref="addInput"
-            v-model="taskText"
-            type="text"
-            class="input join-item w-full"
-            placeholder="Add a new task..."
-            @keyup.enter="onAdd"
-          />
-          <button class="btn join-item" type="button" @click="onAdd">
-            <PlusIcon class="size-4" />
-          </button>
-        </div>
+    <BaseModal ref="addModalRef" title="Add Task">
+      <div class="join w-full">
+        <input
+          ref="addInput"
+          v-model="taskText"
+          type="text"
+          class="input join-item w-full"
+          placeholder="Add a new task..."
+          @keyup.enter="onAdd"
+        />
+        <button class="btn join-item" type="button" @click="onAdd">
+          <PlusIcon class="size-4" />
+        </button>
       </div>
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
+    </BaseModal>
   </main>
 </template>

@@ -7,22 +7,24 @@ import { HomeState } from '@/enums'
 
 interface Emits {
   (e: 'toggle', id: number, completed: boolean): void
-  (e: 'clicked', id: number): void
+  (e: 'clicked', id: number, isDeleted: boolean): void
 }
 
 const emits = defineEmits<Emits>()
 
 interface Props {
   todo: Todo
+  isDeleted: boolean
   homeState: HomeState
 }
 
 const props = defineProps<Props>()
 
+const homeStateDefault = computed(() => props.homeState === HomeState.Default)
 const homeStateDelete = computed(() => props.homeState === HomeState.Delete)
 
 function onChange(checked: boolean) {
-  if (props.homeState == HomeState.Default) {
+  if (props.homeState == HomeState.Default && !props.isDeleted) {
     props.todo.completed = checked
     emits('toggle', props.todo.id, props.todo.completed)
   }
@@ -33,9 +35,12 @@ function onChange(checked: boolean) {
   <div
     class="align-center flex gap-2 rounded p-2 py-1"
     :class="{
-      'cursor-pointer hover:bg-error hover:text-error-content hover:shadow-error': homeStateDelete,
+      'cursor-pointer hover:bg-base-300 hover:shadow': props.isDeleted && homeStateDefault,
+      'cursor-pointer': !props.isDeleted && !homeStateDefault,
+      'hover:bg-error hover:text-error-content hover:shadow hover:shadow-error':
+        !props.isDeleted && homeStateDelete,
     }"
-    @click="emits('clicked', props.todo.id)"
+    @click="emits('clicked', props.todo.id, props.isDeleted)"
   >
     <input
       class="checkbox m-0"
@@ -47,12 +52,5 @@ function onChange(checked: boolean) {
     <span :class="{ 'text-base-content/70 line-through': props.todo.completed }">
       Todo: {{ props.todo.description }}
     </span>
-
-    <!-- <div class="tooltip ms-auto">
-      <div class="tooltip-content">Settings</div>
-      <RouterLink class="link" :to="`/update/${props.todo.id}`">
-        <AdjustmentsHorizontalIcon class="size-6" />
-      </RouterLink>
-    </div> -->
   </div>
 </template>
