@@ -171,7 +171,9 @@ function addButton() {
             placeholder="Add a new task..."
             @keyup.enter="onAdd"
           />
-          <button class="btn join-item" type="button" @click="onAdd">+</button>
+          <button class="btn join-item" type="button" @click="onAdd">
+            <PlusIcon class="size-4" />
+          </button>
         </div>
       </div>
       <form method="dialog" class="modal-backdrop">

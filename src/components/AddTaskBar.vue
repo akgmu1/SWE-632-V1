@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { TodoManager } from '@/todos'
+import { PlusIcon } from '@heroicons/vue/24/solid';
 import { ref } from 'vue'
 
 const emit = defineEmits<{
@@ -30,6 +31,8 @@ function onAdd() {
       placeholder="Add a new task..."
       @keyup.enter="onAdd"
     />
-    <button class="btn join-item" type="button" @click="onAdd">+</button>
+    <button class="btn join-item" type="button" @click="onAdd">
+      <PlusIcon class="size-4" />
+    </button>
   </div>
 </template>
