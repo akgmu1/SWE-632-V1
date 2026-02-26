@@ -1,14 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{
-  modelValue: string
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
+const model = defineModel<string>()
 
 function onInput(e: Event) {
-  emit('update:modelValue', (e.target as HTMLInputElement).value)
+  model.value = (e.target as HTMLInputElement).value
 }
 </script>
 
@@ -17,7 +11,7 @@ function onInput(e: Event) {
     class="input w-1/2 text-center"
     type="text"
     placeholder="Search tasks..."
-    :value="props.modelValue"
+    :value="model"
     @input="onInput"
   />
 </template>

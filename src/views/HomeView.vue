@@ -14,6 +14,7 @@ import {
 } from '@heroicons/vue/24/solid'
 import AddTaskModal from '@/components/AddTaskModal.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
 
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
@@ -69,6 +70,12 @@ function confirmRecover() {
   refreshTodos()
 }
 
+const updateModalRef: Ref<InstanceType<typeof UpdateTaskModal> | null> = ref(null)
+function updateTodo(todo: Todo) {
+  TodoManager.updateTodo(todo)
+  refreshTodos()
+}
+
 function todoClicked(id: number, isDeleted: boolean) {
   if (isDeleted) {
     switch (homeState.value) {
@@ -82,6 +89,14 @@ function todoClicked(id: number, isDeleted: boolean) {
     }
   } else {
     switch (homeState.value) {
+      case HomeState.Update: {
+        homeState.value = HomeState.Default
+        selectedTodo.value = TodoManager.getTodo(id)
+        if (selectedTodo.value !== undefined) {
+          updateModalRef.value!.showModal(selectedTodo.value)
+        }
+        break
+      }
       case HomeState.Delete: {
         homeState.value = HomeState.Default
         selectedTodo.value = TodoManager.getTodo(id)
@@ -119,9 +134,6 @@ function clearRecentlyDeletedTodos() {
     <div class="mb-4 flex justify-center">
       <SearchBar v-model="search" />
     </div>
-    <!-- <div class="mb-4 flex justify-center">
-      <AddTaskBar @added="refreshTodos" />
-    </div> -->
 
     <div class="text-xl">Active</div>
     <hr class="my-2" />
@@ -189,7 +201,7 @@ function clearRecentlyDeletedTodos() {
       <button class="btn btn-circle btn-lg btn-success" @click="addButton">
         <PlusIcon class="size-6" />
       </button>
-      <button class="btn btn-circle btn-lg">
+      <button class="btn btn-circle btn-lg" @click="homeState = HomeState.Update">
         <AdjustmentsVerticalIcon class="size-6" />
       </button>
       <button class="btn btn-circle btn-lg btn-error" @click="homeState = HomeState.Delete">
@@ -205,6 +217,7 @@ function clearRecentlyDeletedTodos() {
       </div>
     </div>
     <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />
+    <UpdateTaskModal ref="updateModalRef" @update-todo="updateTodo" />
     <ConfirmationModal
       ref="confirmClearRecentlyDeleteModalRef"
       title="Clear Recently Deleted"

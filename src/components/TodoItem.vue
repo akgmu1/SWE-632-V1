@@ -22,6 +22,7 @@ const props = defineProps<Props>()
 
 const homeStateDefault = computed(() => props.homeState === HomeState.Default)
 const homeStateDelete = computed(() => props.homeState === HomeState.Delete)
+const homeStateUpdate = computed(() => props.homeState === HomeState.Update)
 
 function onChange(checked: boolean) {
   if (props.homeState == HomeState.Default && !props.isDeleted) {
@@ -35,7 +36,8 @@ function onChange(checked: boolean) {
   <div
     class="align-center flex gap-2 rounded p-2 py-1"
     :class="{
-      'cursor-pointer hover:bg-base-300 hover:shadow': props.isDeleted && homeStateDefault,
+      'cursor-pointer hover:bg-base-300 hover:shadow':
+        (props.isDeleted && homeStateDefault) || (!props.isDeleted && homeStateUpdate),
       'cursor-pointer': !props.isDeleted && !homeStateDefault,
       'hover:bg-error hover:text-error-content hover:shadow hover:shadow-error':
         !props.isDeleted && homeStateDelete,

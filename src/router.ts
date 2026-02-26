@@ -12,16 +12,6 @@ const ROUTES: RouteRecordRaw[] = [
     name: 'home',
     component: HomeView,
   },
-  {
-    path: '/update/:id',
-    props: (route) => ({ todoId: Number(route.params.id) }),
-    component: () => import('@/views/UpdateView.vue'),
-  },
-  {
-    path: '/delete/:id',
-    props: (route) => ({ todoId: Number(route.params.id) }),
-    component: () => import('@/views/DeleteView.vue'),
-  },
 ]
 
 const IS_DEV = import.meta.env.DEV

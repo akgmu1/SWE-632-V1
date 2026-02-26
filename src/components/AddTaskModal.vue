@@ -22,6 +22,7 @@ function onAdd() {
     completed: false,
   })
 
+  taskText.value = ''
   modalRef.value!.close()
 }
 

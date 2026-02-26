@@ -3,7 +3,7 @@ import { ref, type Ref } from 'vue'
 import BaseModal from './BaseModal.vue'
 
 interface Emits {
-  (e: 'confirm'): void
+  (e: 'confirm'): boolean
 }
 
 const emits = defineEmits<Emits>()

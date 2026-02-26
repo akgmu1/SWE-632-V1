@@ -2,10 +2,6 @@
 import { XMarkIcon } from '@heroicons/vue/24/solid'
 import { ref, type Ref } from 'vue'
 
-interface Emits {}
-
-const emits = defineEmits<Emits>()
-
 interface Props {
   title: string
 }
