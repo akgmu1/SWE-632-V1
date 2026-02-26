@@ -13,6 +13,7 @@ import {
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/vue/24/solid'
+import TodoDeletedItem from '@/components/TodoDeletedItem.vue'
 
 const addModal: Ref<HTMLDialogElement | null> = ref(null)
 const addInput: Ref<HTMLInputElement | null> = ref(null)
@@ -20,6 +21,7 @@ const addInput: Ref<HTMLInputElement | null> = ref(null)
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
 const todos: Ref<Todo[]> = ref(TodoManager.getTodos())
+const deletedTodos: Ref<Todo[]> = ref(TodoManager.getRecentlyDeletedTodos())
 
 const q = computed(() => search.value.trim().toLowerCase())
 const search = ref('')
@@ -38,6 +40,7 @@ const completedTodos = computed(() =>
 
 function refreshTodos() {
   todos.value = [...TodoManager.getTodos()]
+  deletedTodos.value = [...TodoManager.getRecentlyDeletedTodos()]
 }
 
 function toggleTodo(id: number, completed: boolean) {
@@ -60,7 +63,11 @@ function todoClicked(id: number) {
       break
     }
   }
-  console.log(id)
+}
+
+function recentlyDeletedTodoClicked(id: number) {
+  TodoManager.revertRecentlyDeletedTodo(id)
+  refreshTodos()
 }
 
 const taskText = ref('')
@@ -81,6 +88,11 @@ function onAdd() {
 function addButton() {
   addModal.value!.showModal()
   addInput.value!.focus()
+}
+
+function clearRecentlyDeletedTodos() {
+  TodoManager.clearRecentlyDeletedTodos()
+  refreshTodos()
 }
 </script>
 
@@ -117,6 +129,28 @@ function addButton() {
         :home-state="homeState"
         @toggle="toggleTodo"
         @clicked="todoClicked"
+      />
+    </div>
+
+    <div class="mt-10 flex justify-between">
+      <!-- TODO: mt-3 may not be correct here... -->
+      <div class="text-xl" :class="{ 'mt-3': deletedTodos.length > 0 }">Recently Deleted</div>
+      <button
+        v-if="deletedTodos.length > 0"
+        class="btn btn-accent"
+        @click="clearRecentlyDeletedTodos"
+      >
+        Clear
+      </button>
+    </div>
+    <hr class="my-2" />
+    <div class="flex flex-col gap-2">
+      <TodoDeletedItem
+        v-for="todo in deletedTodos"
+        :key="todo.id"
+        :todo="todo"
+        :home-state="homeState"
+        @clicked="recentlyDeletedTodoClicked"
       />
     </div>
 

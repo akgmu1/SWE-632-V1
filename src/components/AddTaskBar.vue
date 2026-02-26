@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TodoManager } from '@/todos'
-import { PlusIcon } from '@heroicons/vue/24/solid';
+import { PlusIcon } from '@heroicons/vue/24/solid'
 import { ref } from 'vue'
 
 const emit = defineEmits<{
