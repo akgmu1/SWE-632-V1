@@ -102,9 +102,9 @@ function clearRecentlyDeletedTodos() {
     <div class="mb-4 flex justify-center">
       <SearchBar v-model="search" />
     </div>
-    <div class="mb-4 flex justify-center">
+    <!-- <div class="mb-4 flex justify-center">
       <AddTaskBar @added="refreshTodos" />
-    </div>
+    </div> -->
 
     <div class="text-xl">Active</div>
     <hr class="my-2" />

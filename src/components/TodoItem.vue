@@ -48,11 +48,11 @@ function onChange(checked: boolean) {
       Todo: {{ props.todo.description }}
     </span>
 
-    <div class="tooltip ms-auto">
+    <!-- <div class="tooltip ms-auto">
       <div class="tooltip-content">Settings</div>
       <RouterLink class="link" :to="`/update/${props.todo.id}`">
         <AdjustmentsHorizontalIcon class="size-6" />
       </RouterLink>
-    </div>
+    </div> -->
   </div>
 </template>
