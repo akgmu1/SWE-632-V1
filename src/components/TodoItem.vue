@@ -44,6 +44,7 @@ function onChange(checked: boolean) {
   >
     <input
       class="checkbox m-0"
+      :class="{ 'pointer-events-none': props.isDeleted }"
       type="checkbox"
       :checked="props.todo.completed"
       @change="onChange(($event.target as HTMLInputElement).checked)"
