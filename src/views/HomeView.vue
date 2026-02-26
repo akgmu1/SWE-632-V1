@@ -4,7 +4,7 @@ import SearchBar from '@/components/SearchBar.vue'
 
 import { computed, onMounted, ref, type Ref } from 'vue'
 import { TodoManager, type CreateTodo, type Todo } from '@/todos'
-import { HomeState } from '@/enums'
+import { HomeState, ToolTipDirection } from '@/enums'
 import {
   AdjustmentsVerticalIcon,
   Bars3Icon,
@@ -15,6 +15,7 @@ import {
 import AddTaskModal from '@/components/AddTaskModal.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
+import ToolTip from '@/components/ToolTip.vue'
 
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
@@ -135,6 +136,7 @@ function clearRecentlyDeletedTodos() {
       <SearchBar v-model="search" />
     </div>
 
+    <!-- List of todos working on -->
     <div class="text-xl">Active</div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
@@ -149,6 +151,7 @@ function clearRecentlyDeletedTodos() {
       />
     </div>
 
+    <!-- List of completed todos -->
     <div class="mt-10 text-xl">Completed</div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
@@ -163,6 +166,7 @@ function clearRecentlyDeletedTodos() {
       />
     </div>
 
+    <!-- List of recently deleted todos -->
     <div class="mt-10 flex justify-between">
       <!-- TODO: mt-3 may not be correct here... -->
       <div class="text-xl" :class="{ 'mt-3': deletedTodos.length > 0 }">Recently Deleted</div>
@@ -186,38 +190,63 @@ function clearRecentlyDeletedTodos() {
       />
     </div>
 
+    <!-- The menu at the bottom right that switches state -->
     <div v-if="homeState == HomeState.Default" class="fab fixed right-6 bottom-6 z-50 fab-flower">
-      <!-- a focusable div with tabindex is necessary to work on all browsers. role="button" is necessary for accessibility -->
-      <div tabindex="0" role="button" class="btn btn-circle btn-lg btn-primary">
-        <Bars3Icon class="size-6" />
-      </div>
+      <!-- The initial button -->
+      <ToolTip tabindex="0" role="button" tip="Menu">
+        <div class="btn btn-circle btn-lg btn-primary">
+          <Bars3Icon class="size-6" />
+        </div>
+      </ToolTip>
 
-      <!-- Main Action button replaces the original button when FAB is open -->
-      <div class="fab-close btn btn-circle btn-soft btn-lg btn-error">
-        <XMarkIcon class="size-6" />
-      </div>
+      <!-- The button that is switched out -->
+      <ToolTip class="fab-close" tip="Close">
+        <div class="btn btn-circle btn-soft btn-lg btn-error">
+          <XMarkIcon class="size-6" />
+        </div>
+      </ToolTip>
 
-      <!-- buttons that show up when FAB is open -->
-      <button class="btn btn-circle btn-lg btn-success" @click="addButton">
-        <PlusIcon class="size-6" />
-      </button>
-      <button class="btn btn-circle btn-lg" @click="homeState = HomeState.Update">
-        <AdjustmentsVerticalIcon class="size-6" />
-      </button>
-      <button class="btn btn-circle btn-lg btn-error" @click="homeState = HomeState.Delete">
-        <TrashIcon class="size-6" />
-      </button>
+      <!-- All of the other buttons -->
+
+      <!-- Add a new task -->
+      <ToolTip tip="Add New" :direction="ToolTipDirection.Left">
+        <button class="btn btn-circle btn-lg btn-success" @click="addButton">
+          <PlusIcon class="size-6" />
+        </button>
+      </ToolTip>
+
+      <!-- Update a task -->
+      <ToolTip tip="Update" :direction="ToolTipDirection.Left">
+        <button class="btn btn-circle btn-lg" @click="homeState = HomeState.Update">
+          <AdjustmentsVerticalIcon class="size-6" />
+        </button>
+      </ToolTip>
+
+      <!-- Delete a task -->
+      <ToolTip tip="Delete">
+        <button class="btn btn-circle btn-lg btn-error" @click="homeState = HomeState.Delete">
+          <TrashIcon class="size-6" />
+        </button>
+      </ToolTip>
     </div>
     <div v-else>
-      <div
-        class="btn fixed right-6 bottom-6 z-50 btn-circle btn-lg btn-error"
-        @click="homeState = HomeState.Default"
-      >
-        <XMarkIcon class="size-6" />
+      <!-- Cancel button to go back to default state -->
+      <div class="fixed right-6 bottom-6 z-50">
+        <ToolTip tip="Cancel">
+          <div class="btn btn-circle btn-lg btn-error" @click="homeState = HomeState.Default">
+            <XMarkIcon class="size-6" />
+          </div>
+        </ToolTip>
       </div>
     </div>
+
+    <!-- Add a todo -->
     <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />
+
+    <!-- Update a todo -->
     <UpdateTaskModal ref="updateModalRef" @update-todo="updateTodo" />
+
+    <!-- Confirming to clear all recently deleted todos -->
     <ConfirmationModal
       ref="confirmClearRecentlyDeleteModalRef"
       title="Clear Recently Deleted"
@@ -227,11 +256,15 @@ function clearRecentlyDeletedTodos() {
       <span class="font-bold">{{ deletedTodos.length }}</span> recently deleted
       {{ deletedTodos.length == 1 ? 'todo' : 'todos' }}?
     </ConfirmationModal>
+
+    <!-- Confirming to delete a todo -->
     <ConfirmationModal ref="confirmDeleteModalRef" title="Delete Todo" @confirm="confirmDelete">
       Are you sure you want to delete todo?
       <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
       <template #confirm> Delete </template>
     </ConfirmationModal>
+
+    <!-- Confirming to recover a todo -->
     <ConfirmationModal ref="confirmRecoverModalRef" title="Recover Todo" @confirm="confirmRecover">
       Are you sure you want to recover todo?
       <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>

@@ -3,3 +3,8 @@ export enum HomeState {
   Update,
   Delete,
 }
+
+export enum ToolTipDirection {
+  Top,
+  Left,
+}
