@@ -16,7 +16,18 @@ import AddTaskModal from '@/components/AddTaskModal.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
 import ToolTip from '@/components/ToolTip.vue'
+import LogTimeModal from '@/components/LogTimeModal.vue'
 
+const logTimeModalRef: Ref<InstanceType<typeof LogTimeModal> | null> = ref(null)
+
+function openLogTime(todo: Todo) {
+  logTimeModalRef.value!.showModal(todo)
+}
+
+function logTime(updatedTodo: Todo) {
+  TodoManager.updateTodo(updatedTodo)
+  refreshTodos()
+}
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
 const todos: Ref<Todo[]> = ref(TodoManager.getTodos())
@@ -171,6 +182,7 @@ function clearRecentlyDeletedTodos() {
         :is-deleted="false"
         @toggle="toggleTodo"
         @clicked="todoClicked"
+        @logTimeClicked="openLogTime"
       />
     </div>
 
@@ -245,5 +257,6 @@ function clearRecentlyDeletedTodos() {
       <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
       <template #confirm> Recover </template>
     </ConfirmationModal>
+    <LogTimeModal ref="logTimeModalRef" @log-time="logTime" />
   </main>
 </template>
