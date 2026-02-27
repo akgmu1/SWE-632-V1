@@ -5,6 +5,7 @@ import { subtaskManager } from '@/schemas/subtask'
 import { type Task } from '@/schemas/task'
 import { timeEntryManager } from '@/schemas/timeEntry'
 import { computed } from 'vue'
+import CategoryColor from './CategoryColor.vue'
 
 interface Emits {
   (e: 'toggle', id: number, completed: boolean): void
@@ -110,11 +111,7 @@ const subtaskProgress = computed(() => {
       />
 
       <!-- category color dot -->
-      <div
-        v-if="taskCategory"
-        class="h-4 w-4 shrink-0 rounded border"
-        :style="{ backgroundColor: taskCategory.color }"
-      />
+      <CategoryColor v-if="taskCategory" :category="taskCategory" :size="4" />
 
       <div class="min-w-0 flex-1">
         <!-- Row 1: title + progress badge -->

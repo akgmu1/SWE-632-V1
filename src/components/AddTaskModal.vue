@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DataManager } from '@/data'
-import { dateToYYYYMMDD } from '@/helper'
+import { dateToYYYYMMDD, randomColor } from '@/helper'
 import {
   categoryManager,
   DEFAULT_CATEGORY,
@@ -10,6 +10,7 @@ import {
 import type { CreateTask } from '@/schemas/task'
 import { computed, ref, type Ref } from 'vue'
 import z from 'zod'
+import CategoryColor from './CategoryColor.vue'
 import ConfirmationModal from './ConfirmationModal.vue'
 
 interface Emits {
@@ -33,6 +34,7 @@ const rememberedOptions = new DataManager(rememberedOptionsSchema, 'add-task-rem
 const categories = ref<Category[]>(categoryManager.all())
 const selectedCategory = ref<number>(0)
 const newCategoryName = ref('')
+const newCategoryColor = ref(randomColor())
 
 function loadRememberedOptions() {
   const x = rememberedOptions.load()
@@ -58,6 +60,7 @@ defineExpose({
     categories.value = categoryManager.all()
     selectedCategory.value = DEFAULT_CATEGORY
     newCategoryName.value = ''
+    newCategoryColor.value = randomColor()
 
     loadRememberedOptions()
 
@@ -74,6 +77,7 @@ function onCategoryChange(val: number) {
   console.log(selectedCategory.value, META_ADD_NEW_CATEGORY)
   if (val !== META_ADD_NEW_CATEGORY) {
     newCategoryName.value = ''
+    newCategoryColor.value = randomColor()
   }
 }
 
@@ -96,7 +100,7 @@ function onConfirm() {
     if (!exists) {
       finalCategory = categoryManager.add({
         name: newName,
-        color: '#FF0000', // TODO: RNG then Pick?
+        color: newCategoryColor.value,
       })
     }
     selectedCategory.value = finalCategory
@@ -123,7 +127,12 @@ function onConfirm() {
   }
 
   newCategoryName.value = ''
+  newCategoryColor.value = randomColor()
 }
+
+const currentCategory = computed(() => {
+  return categoryManager.findBy('id', selectedCategory.value)!
+})
 </script>
 
 <template>
@@ -155,7 +164,7 @@ function onConfirm() {
         </div>
 
         <div class="flex items-center gap-3">
-          <div class="h-6 w-6 rounded border bg-sky-400"></div>
+          <CategoryColor :category="currentCategory" />
 
           <select
             class="select-bordered select w-full"
@@ -170,7 +179,7 @@ function onConfirm() {
           </select>
         </div>
         <div v-if="isAddingNewCategory" class="flex items-center gap-3">
-          <div class="h-6 w-6 rounded border bg-amber-400"></div>
+          <CategoryColor :color="newCategoryColor" />
           <input
             v-model="newCategoryName"
             type="text"
