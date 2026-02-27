@@ -4,6 +4,8 @@ const TodoSchema = z.object({
   id: z.number(),
   description: z.string(),
   completed: z.boolean(),
+  dueDate: z.string().optional(),   
+  category: z.string().optional(),  
 })
 
 const TodoArraySchema = z.array(TodoSchema)
