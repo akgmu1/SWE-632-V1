@@ -1,20 +1,27 @@
 import { z } from 'zod'
 
+const TimeEntrySchema = z.object({
+  minutes: z.number(),
+  date: z.string(), // YYYY-MM-DD
+  note: z.string().optional(),
+})
+
 const TodoSchema = z.object({
   id: z.number(),
   description: z.string(),
   completed: z.boolean(),
   dueDate: z.string().optional(),   
   category: z.string().optional(),  
+  categoryColor: z.string().optional(), // e.g. '#38bdf8'
+  timeEntries: z.array(TimeEntrySchema).optional(),
 })
 
 const TodoArraySchema = z.array(TodoSchema)
 
 export type Todo = z.infer<typeof TodoSchema>
-
-const CreateTodoSchema = TodoSchema.omit({ id: true })
 export type CreateTodo = z.infer<typeof CreateTodoSchema>
 
+const CreateTodoSchema = TodoSchema.omit({ id: true })
 const TodoSettingsSchema = z.object({
   currentId: z.number().default(0),
 })
