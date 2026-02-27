@@ -23,10 +23,7 @@ function onConfirm() {
 
   const updated: Todo = {
     ...todo.value,
-    timeEntries: [
-      { minutes: minutes.value, date: date.value },
-      ...(todo.value.timeEntries ?? []),
-    ],
+    timeEntries: [{ minutes: minutes.value, date: date.value }, ...(todo.value.timeEntries ?? [])],
   }
 
   emits('logTime', updated)
@@ -62,12 +59,17 @@ defineExpose({
       <div class="grid grid-cols-2 gap-3">
         <label class="form-control w-full">
           <div class="label"><span class="label-text">Minutes</span></div>
-          <input v-model.number="minutes" type="number" min="1" class="input input-bordered w-full" />
+          <input
+            v-model.number="minutes"
+            type="number"
+            min="1"
+            class="input-bordered input w-full"
+          />
         </label>
 
         <label class="form-control w-full">
           <div class="label"><span class="label-text">Date</span></div>
-          <input v-model="date" type="date" class="input input-bordered w-full" />
+          <input v-model="date" type="date" class="input-bordered input w-full" />
         </label>
       </div>
     </div>

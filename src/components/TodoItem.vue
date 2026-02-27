@@ -25,7 +25,6 @@ const homeStateDefault = computed(() => props.homeState === HomeState.Default)
 const homeStateDelete = computed(() => props.homeState === HomeState.Delete)
 const homeStateUpdate = computed(() => props.homeState === HomeState.Update)
 
-
 const categoryLabel = computed(() => props.todo.category?.trim() ?? '')
 
 const dueLabel = computed(() => {
@@ -92,11 +91,10 @@ const subtasks = computed(() => props.todo.subtasks ?? [])
 const subtaskProgress = computed(() => {
   const total = subtasks.value.length
   if (total === 0) return ''
-  const done = subtasks.value.filter(s => s.completed).length
+  const done = subtasks.value.filter((s) => s.completed).length
   return `${done}/${total} subtasks`
 })
 </script>
-
 
 <template>
   <div
@@ -104,7 +102,7 @@ const subtaskProgress = computed(() => {
     :class="{
       'cursor-pointer hover:bg-base-300 hover:shadow':
         (props.isDeleted && homeStateDefault) || (!props.isDeleted && homeStateUpdate),
-      'cursor-pointer': !props.isDeleted && homeStateDefault,  // keep default clickable if you want
+      'cursor-pointer': !props.isDeleted && homeStateDefault, // keep default clickable if you want
       'hover:bg-error hover:text-error-content hover:shadow hover:shadow-error':
         !props.isDeleted && homeStateDelete,
     }"
@@ -114,7 +112,9 @@ const subtaskProgress = computed(() => {
     <div class="flex min-w-0 items-center gap-3">
       <input
         class="checkbox m-0"
-        :class="{ 'pointer-events-none': props.isDeleted || (!props.isDeleted && !homeStateDefault) }"
+        :class="{
+          'pointer-events-none': props.isDeleted || (!props.isDeleted && !homeStateDefault),
+        }"
         type="checkbox"
         :checked="props.todo.completed"
         @change="onChange(($event.target as HTMLInputElement).checked)"
@@ -127,45 +127,47 @@ const subtaskProgress = computed(() => {
         :style="{ backgroundColor: props.todo.categoryColor }"
       />
 
-<div class="min-w-0 flex-1">
-  <!-- Row 1: title + progress badge -->
-<div class="flex items-center gap-2 min-w-0">
-  <div
-    class="truncate flex-2"
-    :class="{ 'text-base-content/70 line-through': props.todo.completed }"
-  >
-    Todo: {{ props.todo.description }}
-  </div>
+      <div class="min-w-0 flex-1">
+        <!-- Row 1: title + progress badge -->
+        <div class="flex min-w-0 items-center gap-2">
+          <div
+            class="flex-2 truncate"
+            :class="{ 'text-base-content/70 line-through': props.todo.completed }"
+          >
+            Todo: {{ props.todo.description }}
+          </div>
 
-  <span v-if="subtaskProgress" class="badge badge-secondary shrink-0">
-    {{ subtaskProgress }}
-  </span>
-</div>
+          <span v-if="subtaskProgress" class="badge shrink-0 badge-secondary">
+            {{ subtaskProgress }}
+          </span>
+        </div>
 
-  <!-- Row 2: subtasks list (read-only) -->
-<div v-if="subtasks.length" class="mt-2 space-y-1 text-sm opacity-80 pl-1">
-    <div v-for="s in subtasks" :key="s.id" class="flex items-center gap-2 min-w-0">
-  <input class="checkbox checkbox-xs" type="checkbox" :checked="s.completed" disabled />
-  <span class="truncate flex-1" :class="{ 'line-through opacity-60': s.completed }">
-    {{ s.text }}
-  </span>
-</div>
-  </div>
+        <!-- Row 2: subtasks list (read-only) -->
+        <div v-if="subtasks.length" class="mt-2 space-y-1 pl-1 text-sm opacity-80">
+          <div v-for="s in subtasks" :key="s.id" class="flex min-w-0 items-center gap-2">
+            <input class="checkbox checkbox-xs" type="checkbox" :checked="s.completed" disabled />
+            <span class="flex-1 truncate" :class="{ 'line-through opacity-60': s.completed }">
+              {{ s.text }}
+            </span>
+          </div>
+        </div>
 
-  <!-- Row 3: badges + actions -->
-  <div class="mt-2 flex flex-wrap items-center gap-2">
-    <span v-if="categoryLabel" class="badge badge-outline">{{ categoryLabel }}</span>
-    <span v-if="totalHoursLabel" class="badge badge-neutral">{{ totalHoursLabel }} worked</span>
+        <!-- Row 3: badges + actions -->
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          <span v-if="categoryLabel" class="badge badge-outline">{{ categoryLabel }}</span>
+          <span v-if="totalHoursLabel" class="badge badge-neutral"
+            >{{ totalHoursLabel }} worked</span
+          >
 
-<button
-  v-if="homeStateUpdate"
-  class="btn btn-ghost btn-xs"
-  @click.stop="emits('logTimeClicked', props.todo)"
->
-  Log time
-</button>
-  </div>
-</div>
+          <button
+            v-if="homeStateUpdate"
+            class="btn btn-ghost btn-xs"
+            @click.stop="emits('logTimeClicked', props.todo)"
+          >
+            Log time
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- right -->
@@ -173,5 +175,4 @@ const subtaskProgress = computed(() => {
       <span v-if="dueLabel" class="badge" :class="dueBadgeClass">{{ dueLabel }}</span>
     </div>
   </div>
-
 </template>

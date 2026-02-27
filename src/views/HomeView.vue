@@ -142,33 +142,32 @@ function clearRecentlyDeletedTodos() {
 
 <template>
   <main class="container mx-auto py-4">
-  <div class="mb-4 flex items-center justify-between">
-  <div class="text-2xl font-semibold">To Do List</div>
+    <div class="mb-4 flex items-center justify-between">
+      <div class="text-2xl font-semibold">To Do List</div>
 
-  <div v-if="homeState == HomeState.Default" class="flex items-center gap-2">
-    <button class="btn btn-circle btn-success" @click="addButton">
-      <PlusIcon class="size-6" />
-    </button>
+      <div v-if="homeState == HomeState.Default" class="flex items-center gap-2">
+        <button class="btn btn-circle btn-success" @click="addButton">
+          <PlusIcon class="size-6" />
+        </button>
 
-    <button class="btn btn-circle" @click="homeState = HomeState.Update">
-     <PencilSquareIcon class="size-6" />
-    </button>
+        <button class="btn btn-circle" @click="homeState = HomeState.Update">
+          <PencilSquareIcon class="size-6" />
+        </button>
 
-    <button class="btn btn-circle btn-error" @click="homeState = HomeState.Delete">
-      <TrashIcon class="size-6" />
-    </button>
-  </div>
+        <button class="btn btn-circle btn-error" @click="homeState = HomeState.Delete">
+          <TrashIcon class="size-6" />
+        </button>
+      </div>
 
-  <div v-else>
-    <button class="btn btn-circle btn-error" @click="homeState = HomeState.Default">
-      <XMarkIcon class="size-6" />
-    </button>
-  </div>
-</div>
+      <div v-else>
+        <button class="btn btn-circle btn-error" @click="homeState = HomeState.Default">
+          <XMarkIcon class="size-6" />
+        </button>
+      </div>
+    </div>
     <div class="mb-4 flex justify-center">
       <SearchBar v-model="search" />
     </div>
-   
 
     <!-- List of todos working on -->
     <div class="text-xl">Active</div>
@@ -224,8 +223,6 @@ function clearRecentlyDeletedTodos() {
         @clicked="todoClicked"
       />
     </div>
-
-  
 
     <!-- Add a todo -->
     <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />

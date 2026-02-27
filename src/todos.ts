@@ -14,8 +14,8 @@ const TodoSchema = z.object({
   id: z.number(),
   description: z.string(),
   completed: z.boolean(),
-  dueDate: z.string().optional(),   
-  category: z.string().optional(),  
+  dueDate: z.string().optional(),
+  category: z.string().optional(),
   categoryColor: z.string().optional(), // e.g. '#38bdf8'
   timeEntries: z.array(TimeEntrySchema).optional(),
   subtasks: z.array(SubtaskSchema).optional(),
@@ -36,7 +36,6 @@ type TodoSettings = z.infer<typeof TodoSettingsSchema>
 const TODO_SETTINGS_KEY = 'todo-settings'
 const TODOS_KEY = 'todos'
 const TODOS_RECENTLY_DELETED_KEY = 'todos-recently-deleted'
-
 
 // PERF: Some sort of cache to not have to constantly read from storage
 

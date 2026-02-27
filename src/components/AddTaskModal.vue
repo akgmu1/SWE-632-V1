@@ -11,9 +11,8 @@ const emits = defineEmits<Emits>()
 const inputRef: Ref<HTMLInputElement | null> = ref(null)
 
 const title = ref('')
-const dueDate = ref('') 
+const dueDate = ref('')
 const rememberOptions = ref(true)
-
 
 type CategoryOption = { name: string }
 const CATEGORIES_KEY = 'todo-categories'
@@ -21,11 +20,10 @@ const CREATE_OPTIONS_KEY = 'todo-create-options'
 const ADD_NEW_VALUE = '__ADD_NEW__'
 
 const categories = ref<CategoryOption[]>([])
-const selectedCategory = ref<string>('') 
+const selectedCategory = ref<string>('')
 const newCategoryName = ref('')
 
 function loadCategories() {
-
   const defaults: CategoryOption[] = [
     { name: 'Work' },
     { name: 'Personal' },
@@ -63,9 +61,7 @@ function loadRememberedOptions() {
 
     if (obj.dueDate) dueDate.value = obj.dueDate
     if (obj.category) selectedCategory.value = obj.category
-  } catch {
-   
-  }
+  } catch {}
 }
 
 function saveRememberedOptions() {
@@ -89,7 +85,6 @@ defineExpose({
     loadCategories()
     loadRememberedOptions()
 
-    
     newCategoryName.value = ''
     if (!selectedCategory.value) selectedCategory.value = '' //reset placeholder
 
@@ -98,7 +93,6 @@ defineExpose({
   },
   close: () => modalRef.value!.close(),
 })
-
 
 const isAddingNewCategory = computed(() => selectedCategory.value === ADD_NEW_VALUE)
 
@@ -164,31 +158,26 @@ function onConfirm() {
     :should-close="canConfirm"
     :positive="true"
   >
-
     <div class="w-full">
       <div class="flex flex-col gap-4">
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row">
           <input
             ref="inputRef"
             v-model="title"
             type="text"
             placeholder="Title"
-            class="input input-bordered w-full"
+            class="input-bordered input w-full"
             @keyup.enter="onConfirm"
           />
 
-          <input
-            v-model="dueDate"
-            type="date"
-            class="input input-bordered w-full"
-          />
+          <input v-model="dueDate" type="date" class="input-bordered input w-full" />
         </div>
 
         <div class="flex items-center gap-3">
-          <div class="w-6 h-6 rounded border bg-sky-400"></div>
+          <div class="h-6 w-6 rounded border bg-sky-400"></div>
 
           <select
-            class="select select-bordered w-full"
+            class="select-bordered select w-full"
             :value="selectedCategory"
             @change="onCategoryChange(($event.target as HTMLSelectElement).value)"
           >
@@ -200,22 +189,21 @@ function onConfirm() {
           </select>
         </div>
         <div v-if="isAddingNewCategory" class="flex items-center gap-3">
-          <div class="w-6 h-6 rounded border bg-amber-400"></div>
+          <div class="h-6 w-6 rounded border bg-amber-400"></div>
           <input
             v-model="newCategoryName"
             type="text"
             placeholder="New category name"
-            class="input input-bordered w-full"
+            class="input-bordered input w-full"
             @keyup.enter="onConfirm"
           />
         </div>
 
         <!-- Remember Options -->
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex cursor-pointer items-center gap-2">
           <input type="checkbox" class="checkbox" v-model="rememberOptions" />
           <span>Remember Options</span>
         </label>
-
       </div>
     </div>
 
