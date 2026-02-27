@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref } from 'vue'
-import BaseModal from './BaseModal.vue'
-import { PlusIcon } from '@heroicons/vue/24/solid'
-import ConfirmationModal from './ConfirmationModal.vue'
-import type { Task } from '@/schemas/task'
 import { subtaskManager, type Subtask } from '@/schemas/subtask'
+import type { Task } from '@/schemas/task'
+import { computed, onMounted, ref, type Ref } from 'vue'
+import BaseModal from './BaseModal.vue'
+import ConfirmationModal from './ConfirmationModal.vue'
 
 interface Emits {
   (e: 'updateTask', task: Task): void

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, type Ref } from 'vue'
-import ConfirmationModal from './ConfirmationModal.vue'
-import type { CreateTask } from '@/schemas/task'
-import z from 'zod'
 import { DataManager } from '@/data'
+import { dateToYYYYMMDD } from '@/helper'
 import {
   categoryManager,
   DEFAULT_CATEGORY,
   META_ADD_NEW_CATEGORY,
   type Category,
 } from '@/schemas/category'
-import { dateToYYYYMMDD } from '@/helper'
+import type { CreateTask } from '@/schemas/task'
+import { computed, ref, type Ref } from 'vue'
+import z from 'zod'
+import ConfirmationModal from './ConfirmationModal.vue'
 
 interface Emits {
   (e: 'addTask', task: CreateTask): void

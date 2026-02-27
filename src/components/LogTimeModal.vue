@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { dateToYYYYMMDD } from '@/helper'
+import type { Task } from '@/schemas/task'
+import type { CreateTimeEntry } from '@/schemas/timeEntry'
 import { computed, ref, type Ref } from 'vue'
 import BaseModal from './BaseModal.vue'
 import ConfirmationModal from './ConfirmationModal.vue'
-import type { Task } from '@/schemas/task'
-import type { CreateTimeEntry, TimeEntry } from '@/schemas/timeEntry'
-import { dateToYYYYMMDD } from '@/helper'
 
 interface Emits {
   (e: 'logTime', entry: CreateTimeEntry): void

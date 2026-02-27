@@ -1,23 +1,17 @@
 <script setup lang="ts">
-import TaskItem from '@/components/TaskItem.vue'
-import SearchBar from '@/components/SearchBar.vue'
-import { PencilSquareIcon } from '@heroicons/vue/24/outline'
-import { computed, onMounted, ref, type Ref } from 'vue'
-import { HomeState, ToolTipDirection } from '@/enums'
-import {
-  AdjustmentsVerticalIcon,
-  Bars3Icon,
-  PlusIcon,
-  TrashIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/solid'
 import AddTaskModal from '@/components/AddTaskModal.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
-import ToolTip from '@/components/ToolTip.vue'
 import LogTimeModal from '@/components/LogTimeModal.vue'
+import SearchBar from '@/components/SearchBar.vue'
+import TaskItem from '@/components/TaskItem.vue'
+import ToolTip from '@/components/ToolTip.vue'
+import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
+import { HomeState, ToolTipDirection } from '@/enums'
 import { deletedTaskManager, taskManager, type CreateTask, type Task } from '@/schemas/task'
 import { timeEntryManager, type CreateTimeEntry } from '@/schemas/timeEntry'
+import { PencilSquareIcon } from '@heroicons/vue/24/outline'
+import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+import { computed, ref, type Ref } from 'vue'
 
 const logTimeModalRef: Ref<InstanceType<typeof LogTimeModal> | null> = ref(null)
 

@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
-import { AdjustmentsHorizontalIcon } from '@heroicons/vue/24/solid'
-import { computed } from 'vue'
 import { HomeState } from '@/enums'
-import { taskManager, type Task } from '@/schemas/task'
 import { categoryManager } from '@/schemas/category'
 import { subtaskManager } from '@/schemas/subtask'
+import { type Task } from '@/schemas/task'
 import { timeEntryManager } from '@/schemas/timeEntry'
+import { computed } from 'vue'
 
 interface Emits {
   (e: 'toggle', id: number, completed: boolean): void
