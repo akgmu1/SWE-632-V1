@@ -35,6 +35,9 @@ const categories = ref<Category[]>(categoryManager.all())
 const selectedCategory = ref<number>(0)
 const newCategoryName = ref('')
 const newCategoryColor = ref(randomColor())
+const currentCategory = computed(() => {
+  return categoryManager.findBy('id', selectedCategory.value)!
+})
 
 function loadRememberedOptions() {
   const x = rememberedOptions.load()
@@ -74,7 +77,6 @@ const isAddingNewCategory = computed(() => selectedCategory.value === META_ADD_N
 
 function onCategoryChange(val: number) {
   selectedCategory.value = val
-  console.log(selectedCategory.value, META_ADD_NEW_CATEGORY)
   if (val !== META_ADD_NEW_CATEGORY) {
     newCategoryName.value = ''
     newCategoryColor.value = randomColor()
@@ -130,9 +132,6 @@ function onConfirm() {
   newCategoryColor.value = randomColor()
 }
 
-const currentCategory = computed(() => {
-  return categoryManager.findBy('id', selectedCategory.value)!
-})
 </script>
 
 <template>

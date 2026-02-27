@@ -1,8 +1,16 @@
 <script setup lang="ts">
+import { randomColor } from '@/helper'
+import {
+  categoryManager,
+  DEFAULT_CATEGORY,
+  META_ADD_NEW_CATEGORY,
+  type Category,
+} from '@/schemas/category'
 import { subtaskManager, type Subtask } from '@/schemas/subtask'
 import type { Task } from '@/schemas/task'
 import { computed, onMounted, ref, type Ref } from 'vue'
 import BaseModal from './BaseModal.vue'
+import CategoryColor from './CategoryColor.vue'
 import ConfirmationModal from './ConfirmationModal.vue'
 
 interface Emits {
@@ -13,6 +21,24 @@ const emits = defineEmits<Emits>()
 
 const task: Ref<Task | undefined> = ref(undefined)
 const subtasks: Ref<Subtask[]> = ref([])
+
+const categories: Ref<Category[]> = ref(categoryManager.all())
+const selectedCategory = ref<number>(0)
+const newCategoryName = ref('')
+const newCategoryColor = ref(randomColor())
+const currentCategory = computed(() => {
+  return categoryManager.findBy('id', selectedCategory.value)!
+})
+
+const isAddingNewCategory = computed(() => selectedCategory.value === META_ADD_NEW_CATEGORY)
+
+function onCategoryChange(val: number) {
+  selectedCategory.value = val
+  if (val !== META_ADD_NEW_CATEGORY) {
+    newCategoryName.value = ''
+    newCategoryColor.value = randomColor()
+  }
+}
 
 const newSubtaskText = ref('')
 
@@ -58,10 +84,13 @@ const modalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
 
 defineExpose({
   showModal: (t: Task) => {
+    categories.value = categoryManager.all()
     task.value = t
     subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
     description.value = t.description.trim()
     checkDescription()
+    newCategoryName.value = ''
+    newCategoryColor.value = randomColor()
     modalRef.value!.showModal()
   },
   close: () => {
@@ -87,20 +116,46 @@ onMounted(() => {
   checkDescription()
 })
 
-function onConfirm(): void {
-  description.value = description.value.trim()
-  checkDescription()
-  if (descriptionErrorStr.value) {
-    return
+const canConfirm = computed(() => {
+  if (hadError.value) return false
+  if (!description.value.trim()) return false
+  if (isAddingNewCategory.value) {
+    return newCategoryName.value.trim().length > 0
   }
+  return true
+})
+
+function onConfirm(): void {
+  if (!canConfirm.value) return
+
+  let finalCategory: number = DEFAULT_CATEGORY
+
+  if (isAddingNewCategory.value) {
+    const newName = newCategoryName.value.trim()
+    const exists = categoryManager.findBy('name', newName)
+    if (!exists) {
+      finalCategory = categoryManager.add({
+        name: newName,
+        color: newCategoryColor.value,
+      })
+    }
+    selectedCategory.value = finalCategory
+  } else {
+    finalCategory = selectedCategory.value
+  }
+
   emits(
     'updateTask',
     {
       ...task.value!,
       description: description.value,
+      category: finalCategory,
     },
     true,
   )
+
+  newCategoryName.value = ''
+  newCategoryColor.value = randomColor()
 }
 </script>
 
@@ -109,12 +164,12 @@ function onConfirm(): void {
     ref="modalRef"
     title="Update Task"
     @confirm="onConfirm"
-    :should-close="!hadError"
+    :should-close="canConfirm"
     :positive="true"
   >
     <div class="container mx-auto pt-4 text-center">
       <!-- Description -->
-      <label class="input">
+      <label class="w-full input">
         <span class="label">Description</span>
         <div class="flex justify-center">
           <input
@@ -126,6 +181,32 @@ function onConfirm(): void {
         </div>
       </label>
       <div :hidden="!descriptionErrorStr" class="text-error">Error: {{ descriptionErrorStr }}</div>
+
+      <div class="mx-auto flex items-center gap-3 mt-6">
+        <CategoryColor :category="currentCategory" />
+
+        <select
+          class="select-bordered select w-full"
+          :value="selectedCategory"
+          @change="onCategoryChange(Number(($event.target as HTMLSelectElement).value))"
+        >
+          <option value="" disabled>Selected Category (optional)</option>
+          <option v-for="c in categories" :key="c.id" :value="c.id">
+            <div v-if="c.id === META_ADD_NEW_CATEGORY">+ Add new category…</div>
+            <div v-else>{{ c.name }}</div>
+          </option>
+        </select>
+      </div>
+      <div v-if="isAddingNewCategory" class="flex items-center gap-3 mt-6">
+        <CategoryColor :color="newCategoryColor" />
+        <input
+          v-model="newCategoryName"
+          type="text"
+          placeholder="New category name"
+          class="input-bordered input w-full"
+          @keyup.enter="onConfirm"
+        />
+      </div>
 
       <div class="mt-6 text-left">
         <div class="mb-2 font-semibold">Subtasks</div>
