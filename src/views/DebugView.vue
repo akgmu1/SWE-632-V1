@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { TodoManager, type CreateTodo } from '@/todos'
+import { DEFAULT_CATEGORY } from '@/schemas/category'
+import { taskManager, type CreateTask } from '@/schemas/task'
 
 function showToast() {
   const toast = document.getElementById('my-toast')!
@@ -12,27 +13,33 @@ function showToast() {
 }
 
 function resetTodos() {
-  TodoManager.reset()
+  taskManager.reset(true)
   showToast()
 }
 
 function addTestTodos() {
-  const TODOS: CreateTodo[] = [
+  const TASKS: CreateTask[] = [
     {
       description: 'Test 1',
       completed: false,
+      category: DEFAULT_CATEGORY,
+      dueDate: new Date(),
     },
     {
       description: 'Test 2',
       completed: true,
+      category: DEFAULT_CATEGORY,
+      dueDate: new Date(),
     },
     {
       description: 'Test 3',
       completed: false,
+      category: DEFAULT_CATEGORY,
+      dueDate: new Date(),
     },
   ]
-  for (const todo of TODOS) {
-    TodoManager.createTodo(todo)
+  for (const task of TASKS) {
+    taskManager.add(task)
   }
   showToast()
 }

@@ -1,42 +1,44 @@
 <script setup lang="ts">
 import { computed, ref, type Ref } from 'vue'
-import type { Todo } from '@/todos'
 import BaseModal from './BaseModal.vue'
 import ConfirmationModal from './ConfirmationModal.vue'
+import type { Task } from '@/schemas/task'
+import type { CreateTimeEntry, TimeEntry } from '@/schemas/timeEntry'
+import { dateToYYYYMMDD } from '@/helper'
 
 interface Emits {
-  (e: 'logTime', todo: Todo): void
+  (e: 'logTime', entry: CreateTimeEntry): void
 }
 const emits = defineEmits<Emits>()
 
 const modalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
-const todo: Ref<Todo | undefined> = ref(undefined)
+const task: Ref<Task | undefined> = ref(undefined)
 
 const minutes = ref<number>(30)
 
-const date = ref<string>(new Date().toISOString().slice(0, 10)) // YYYY-MM-DD
+const selectedDate = ref<Date>(new Date())
 
-const canSubmit = computed(() => minutes.value > 0 && !!todo.value)
+const canSubmit = computed(() => minutes.value > 0 && !!task.value)
 
 function onConfirm() {
-  if (!todo.value || minutes.value <= 0) return
+  if (!task.value || minutes.value <= 0) return
 
-  const updated: Todo = {
-    ...todo.value,
-    timeEntries: [{ minutes: minutes.value, date: date.value }, ...(todo.value.timeEntries ?? [])],
-  }
-
-  emits('logTime', updated)
+  emits('logTime', {
+    taskId: task.value.id,
+    date: selectedDate.value,
+    minutes: minutes.value,
+    note: '',
+  })
 
   // reset
   minutes.value = 30
-  date.value = new Date().toISOString().slice(0, 10)
+  selectedDate.value = new Date()
   modalRef.value!.close()
 }
 
 defineExpose({
-  showModal: (t: Todo) => {
-    todo.value = t
+  showModal: (t: Task) => {
+    task.value = t
     modalRef.value!.showModal()
   },
   close: () => modalRef.value!.close(),
@@ -53,7 +55,7 @@ defineExpose({
   >
     <div class="space-y-4">
       <div class="text-sm opacity-70">
-        Task: <span class="font-semibold">{{ todo?.description }}</span>
+        Task: <span class="font-semibold">{{ task?.description }}</span>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -69,7 +71,12 @@ defineExpose({
 
         <label class="form-control w-full">
           <div class="label"><span class="label-text">Date</span></div>
-          <input v-model="date" type="date" class="input-bordered input w-full" />
+          <input
+            type="date"
+            :value="dateToYYYYMMDD(selectedDate)"
+            @input="selectedDate = ($event.target as HTMLInputElement).valueAsDate ?? new Date()"
+            class="input-bordered input w-full"
+          />
         </label>
       </div>
     </div>

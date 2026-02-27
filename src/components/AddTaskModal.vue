@@ -1,92 +1,65 @@
 <script setup lang="ts">
 import { computed, ref, type Ref } from 'vue'
-import type { CreateTodo } from '@/todos'
 import ConfirmationModal from './ConfirmationModal.vue'
+import type { CreateTask } from '@/schemas/task'
+import z from 'zod'
+import { DataManager } from '@/data'
+import {
+  categoryManager,
+  DEFAULT_CATEGORY,
+  META_ADD_NEW_CATEGORY,
+  type Category,
+} from '@/schemas/category'
+import { dateToYYYYMMDD } from '@/helper'
 
 interface Emits {
-  (e: 'addTodo', todo: CreateTodo): void
+  (e: 'addTask', task: CreateTask): void
 }
 const emits = defineEmits<Emits>()
 
 const inputRef: Ref<HTMLInputElement | null> = ref(null)
 
 const title = ref('')
-const dueDate = ref('')
+const dueDate = ref(new Date())
 const rememberOptions = ref(true)
 
-type CategoryOption = { name: string }
-const CATEGORIES_KEY = 'todo-categories'
-const CREATE_OPTIONS_KEY = 'todo-create-options'
-const ADD_NEW_VALUE = '__ADD_NEW__'
+const rememberedOptionsSchema = z.object({
+  dueDate: z.coerce.date(),
+  category: z.number(),
+})
 
-const categories = ref<CategoryOption[]>([])
-const selectedCategory = ref<string>('')
+const rememberedOptions = new DataManager(rememberedOptionsSchema, 'add-task-remembered-options')
+
+const categories = ref<Category[]>(categoryManager.all())
+const selectedCategory = ref<number>(0)
 const newCategoryName = ref('')
 
-function loadCategories() {
-  const defaults: CategoryOption[] = [
-    { name: 'Work' },
-    { name: 'Personal' },
-    { name: 'School' },
-    { name: 'Home' },
-    { name: 'Fitness' },
-    { name: 'Other' },
-  ]
-
-  try {
-    const raw = localStorage.getItem(CATEGORIES_KEY)
-    if (!raw) {
-      categories.value = defaults
-      localStorage.setItem(CATEGORIES_KEY, JSON.stringify(defaults))
-      return
-    }
-
-    const parsed = JSON.parse(raw) as CategoryOption[]
-    categories.value = Array.isArray(parsed) && parsed.length ? parsed : defaults
-  } catch {
-    categories.value = defaults
-    localStorage.setItem(CATEGORIES_KEY, JSON.stringify(defaults))
-  }
-}
-
-function saveCategories() {
-  localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories.value))
-}
-
 function loadRememberedOptions() {
-  try {
-    const raw = localStorage.getItem(CREATE_OPTIONS_KEY)
-    if (!raw) return
-    const obj = JSON.parse(raw) as { dueDate?: string; category?: string }
-
-    if (obj.dueDate) dueDate.value = obj.dueDate
-    if (obj.category) selectedCategory.value = obj.category
-  } catch {}
+  const x = rememberedOptions.load()
+  if (x === undefined) {
+    return
+  }
+  dueDate.value = x.dueDate
+  selectedCategory.value = x.category
 }
 
 function saveRememberedOptions() {
   if (!rememberOptions.value) return
-  localStorage.setItem(
-    CREATE_OPTIONS_KEY,
-    JSON.stringify({
-      dueDate: dueDate.value || undefined,
-      category:
-        selectedCategory.value && selectedCategory.value !== ADD_NEW_VALUE
-          ? selectedCategory.value
-          : undefined,
-    }),
-  )
+  rememberedOptions.save({
+    dueDate: dueDate.value,
+    category: selectedCategory.value, // TODO: Make sure not save META add
+  })
 }
 
 const modalRef: Ref<InstanceType<typeof ConfirmationModal> | null> = ref(null)
 
 defineExpose({
   showModal: () => {
-    loadCategories()
-    loadRememberedOptions()
-
+    categories.value = categoryManager.all()
+    selectedCategory.value = DEFAULT_CATEGORY
     newCategoryName.value = ''
-    if (!selectedCategory.value) selectedCategory.value = '' //reset placeholder
+
+    loadRememberedOptions()
 
     modalRef.value!.showModal()
     setTimeout(() => inputRef.value?.focus(), 0)
@@ -94,11 +67,12 @@ defineExpose({
   close: () => modalRef.value!.close(),
 })
 
-const isAddingNewCategory = computed(() => selectedCategory.value === ADD_NEW_VALUE)
+const isAddingNewCategory = computed(() => selectedCategory.value === META_ADD_NEW_CATEGORY)
 
-function onCategoryChange(val: string) {
+function onCategoryChange(val: number) {
   selectedCategory.value = val
-  if (val !== ADD_NEW_VALUE) {
+  console.log(selectedCategory.value, META_ADD_NEW_CATEGORY)
+  if (val !== META_ADD_NEW_CATEGORY) {
     newCategoryName.value = ''
   }
 }
@@ -114,36 +88,38 @@ const canConfirm = computed(() => {
 function onConfirm() {
   if (!canConfirm.value) return
 
-  let finalCategory: string | undefined = undefined
+  let finalCategory: number = DEFAULT_CATEGORY
 
   if (isAddingNewCategory.value) {
     const newName = newCategoryName.value.trim()
-    const exists = categories.value.some((c) => c.name.toLowerCase() === newName.toLowerCase())
+    const exists = categoryManager.findBy('name', newName)
     if (!exists) {
-      categories.value.push({ name: newName })
-      saveCategories()
+      finalCategory = categoryManager.add({
+        name: newName,
+        color: '#FF0000', // TODO: RNG then Pick?
+      })
     }
-    finalCategory = newName
-    selectedCategory.value = newName
-  } else if (selectedCategory.value) {
+    selectedCategory.value = finalCategory
+  } else {
     finalCategory = selectedCategory.value
   }
 
   const text = title.value.trim()
 
-  emits('addTodo', {
+  emits('addTask', {
     description: text,
     completed: false,
-    dueDate: dueDate.value || undefined,
+    dueDate: dueDate.value,
     category: finalCategory,
   })
 
   saveRememberedOptions()
 
   title.value = ''
+
   if (!rememberOptions.value) {
-    dueDate.value = ''
-    selectedCategory.value = ''
+    dueDate.value = new Date()
+    selectedCategory.value = DEFAULT_CATEGORY
   }
 
   newCategoryName.value = ''
@@ -170,7 +146,12 @@ function onConfirm() {
             @keyup.enter="onConfirm"
           />
 
-          <input v-model="dueDate" type="date" class="input-bordered input w-full" />
+          <input
+            type="date"
+            :value="dateToYYYYMMDD(dueDate)"
+            @input="dueDate = ($event.target as HTMLInputElement).valueAsDate ?? new Date()"
+            class="input-bordered input w-full"
+          />
         </div>
 
         <div class="flex items-center gap-3">
@@ -179,13 +160,13 @@ function onConfirm() {
           <select
             class="select-bordered select w-full"
             :value="selectedCategory"
-            @change="onCategoryChange(($event.target as HTMLSelectElement).value)"
+            @change="onCategoryChange(Number(($event.target as HTMLSelectElement).value))"
           >
             <option value="" disabled>Selected Category (optional)</option>
-            <option v-for="c in categories" :key="c.name" :value="c.name">
-              {{ c.name }}
+            <option v-for="c in categories" :key="c.id" :value="c.id">
+              <div v-if="c.id === META_ADD_NEW_CATEGORY">+ Add new category…</div>
+              <div v-else>{{ c.name }}</div>
             </option>
-            <option :value="ADD_NEW_VALUE">+ Add new category…</option>
           </select>
         </div>
         <div v-if="isAddingNewCategory" class="flex items-center gap-3">

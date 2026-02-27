@@ -1,55 +1,58 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import BaseModal from './BaseModal.vue'
-import type { CreateTodo, Todo } from '@/todos'
 import { PlusIcon } from '@heroicons/vue/24/solid'
 import ConfirmationModal from './ConfirmationModal.vue'
+import type { Task } from '@/schemas/task'
+import { subtaskManager, type Subtask } from '@/schemas/subtask'
 
 interface Emits {
-  (e: 'updateTodo', todo: Todo): void
+  (e: 'updateTask', task: Task): void
 }
 
 const emits = defineEmits<Emits>()
 
-const todo: Ref<Todo | undefined> = ref(undefined)
+const task: Ref<Task | undefined> = ref(undefined)
+const subtasks: Ref<Subtask[]> = ref([])
+
 const newSubtaskText = ref('')
 
 function addSubtask() {
-  if (!todo.value) return
+  if (!task.value) return
 
   const text = newSubtaskText.value.trim()
   if (!text) return
 
-  todo.value.subtasks = [
-    ...(todo.value.subtasks ?? []),
-    {
-      id: crypto.randomUUID(),
-      text,
-      completed: false,
-    },
-  ]
+  subtaskManager.add({
+    taskId: task.value.id,
+    completed: false,
+    text,
+  })
+
+  subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
 
   newSubtaskText.value = ''
 }
 
-function toggleSubtask(id: string, completed: boolean) {
-  if (!todo.value) return
+function toggleSubtask(subtask: Subtask, completed: boolean) {
+  if (!task.value) return
 
-  todo.value.subtasks = (todo.value.subtasks ?? []).map((s) =>
-    s.id === id ? { ...s, completed } : s,
-  )
+  subtaskManager.updateBy('id', subtask.id, {
+    completed,
+  })
 }
 
-function removeSubtask(id: string) {
-  if (!todo.value) return
+function removeSubtask(subtask: Subtask) {
+  if (!task.value) return
 
-  todo.value.subtasks = (todo.value.subtasks ?? []).filter((s) => s.id !== id)
+  subtaskManager.removeBy('id', subtask.id)
 }
 const modalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
 
 defineExpose({
-  showModal: (t: Todo) => {
-    todo.value = t
+  showModal: (t: Task) => {
+    task.value = t
+    subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
     description.value = t.description.trim()
     checkDescription()
     modalRef.value!.showModal()
@@ -83,8 +86,8 @@ function onConfirm(): void {
   if (descriptionErrorStr.value) {
     return
   }
-  emits('updateTodo', {
-    ...todo.value!,
+  emits('updateTask', {
+    ...task.value!,
     description: description.value,
   })
 }
@@ -105,7 +108,7 @@ function onConfirm(): void {
         <div class="flex justify-center">
           <input
             :class="{ 'input-error': descriptionErrorStr }"
-            :placeholder="todo?.description"
+            :placeholder="task?.description"
             @input="checkDescription"
             v-model="description"
           />
@@ -116,20 +119,20 @@ function onConfirm(): void {
       <div class="mt-6 text-left">
         <div class="mb-2 font-semibold">Subtasks</div>
 
-        <div v-if="(todo?.subtasks ?? []).length" class="space-y-2">
-          <div v-for="s in todo?.subtasks ?? []" :key="s.id" class="flex items-center gap-2">
+        <div v-if="subtasks.length" class="space-y-2">
+          <div v-for="s in subtasks" :key="s.id" class="flex items-center gap-2">
             <input
               type="checkbox"
               class="checkbox"
               :checked="s.completed"
-              @change="toggleSubtask(s.id, ($event.target as HTMLInputElement).checked)"
+              @change="toggleSubtask(s, ($event.target as HTMLInputElement).checked)"
             />
 
             <div class="flex-1" :class="{ 'line-through opacity-60': s.completed }">
               {{ s.text }}
             </div>
 
-            <button type="button" class="btn btn-ghost btn-xs" @click="removeSubtask(s.id)">
+            <button type="button" class="btn btn-ghost btn-xs" @click="removeSubtask(s)">
               Remove
             </button>
           </div>

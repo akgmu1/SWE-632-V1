@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import TodoItem from '@/components/TodoItem.vue'
+import TaskItem from '@/components/TaskItem.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import { PencilSquareIcon } from '@heroicons/vue/24/outline'
 import { computed, onMounted, ref, type Ref } from 'vue'
-import { TodoManager, type CreateTodo, type Todo } from '@/todos'
 import { HomeState, ToolTipDirection } from '@/enums'
 import {
   AdjustmentsVerticalIcon,
@@ -17,83 +16,82 @@ import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
 import ToolTip from '@/components/ToolTip.vue'
 import LogTimeModal from '@/components/LogTimeModal.vue'
+import { deletedTaskManager, taskManager, type CreateTask, type Task } from '@/schemas/task'
+import { timeEntryManager, type CreateTimeEntry } from '@/schemas/timeEntry'
 
 const logTimeModalRef: Ref<InstanceType<typeof LogTimeModal> | null> = ref(null)
 
-function openLogTime(todo: Todo) {
-  logTimeModalRef.value!.showModal(todo)
+function openLogTime(task: Task) {
+  logTimeModalRef.value!.showModal(task)
 }
 
-function logTime(updatedTodo: Todo) {
-  TodoManager.updateTodo(updatedTodo)
-  refreshTodos()
+function logTime(entry: CreateTimeEntry) {
+  timeEntryManager.add(entry)
+  refreshTasks()
 }
+
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
-const todos: Ref<Todo[]> = ref(TodoManager.getTodos())
-const deletedTodos: Ref<Todo[]> = ref(TodoManager.getRecentlyDeletedTodos())
+const tasks: Ref<Task[]> = ref(taskManager.all())
+const deletedTasks: Ref<Task[]> = ref(deletedTaskManager.all())
 
 const q = computed(() => search.value.trim().toLowerCase())
 const search = ref('')
 
-const activeTodos = computed(() =>
-  todos.value.filter(
+const activeTasks = computed(() =>
+  tasks.value.filter(
     (t) => !t.completed && (!q.value || t.description.toLowerCase().includes(q.value)),
   ),
 )
 
-const completedTodos = computed(() =>
-  todos.value.filter(
+const completedTasks = computed(() =>
+  tasks.value.filter(
     (t) => t.completed && (!q.value || t.description.toLowerCase().includes(q.value)),
   ),
 )
 
-const filteredDeletedTodos = computed(() =>
-  deletedTodos.value.filter((t) => !q.value || t.description.toLowerCase().includes(q.value)),
+const filteredDeletedTasks = computed(() =>
+  deletedTasks.value.filter((t) => !q.value || t.description.toLowerCase().includes(q.value)),
 )
 
-function refreshTodos() {
-  todos.value = [...TodoManager.getTodos()]
-  deletedTodos.value = [...TodoManager.getRecentlyDeletedTodos()]
+function refreshTasks() {
+  tasks.value = [...taskManager.all()]
+  deletedTasks.value = [...deletedTaskManager.all()]
 }
 
-function toggleTodo(id: number, completed: boolean) {
-  const t = todos.value.find((x) => x.id === id)
-  if (t) {
-    t.completed = completed
-    TodoManager.updateTodo({
-      ...TodoManager.getTodo(id)!,
-      completed,
-    })
-  }
+function toggleTask(id: number, completed: boolean) {
+  taskManager.updateBy('id', id, { completed })
+  refreshTasks()
 }
 
-const selectedTodo: Ref<Todo | undefined> = ref(undefined)
+const selectedTask: Ref<Task | undefined> = ref(undefined)
 
 const confirmDeleteModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> = ref(null)
 function confirmDelete() {
-  TodoManager.removeTodo(selectedTodo.value!.id)
-  refreshTodos()
+  taskManager.removeBy('id', selectedTask.value!.id)
+  deletedTaskManager.add(selectedTask.value!)
+  refreshTasks()
 }
 
 const confirmRecoverModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> = ref(null)
 function confirmRecover() {
-  TodoManager.revertRecentlyDeletedTodo(selectedTodo.value!.id)
-  refreshTodos()
+  deletedTaskManager.removeBy('id', selectedTask.value!.id)
+  taskManager.insert(selectedTask.value!)
+  refreshTasks()
 }
 
 const updateModalRef: Ref<InstanceType<typeof UpdateTaskModal> | null> = ref(null)
-function updateTodo(todo: Todo) {
-  TodoManager.updateTodo(todo)
-  refreshTodos()
+function updateTask(task: Task) {
+  taskManager.updateBy('id', task.id, task)
+  refreshTasks()
 }
 
-function todoClicked(id: number, isDeleted: boolean) {
+function taskClicked(id: number, isDeleted: boolean) {
   if (isDeleted) {
     switch (homeState.value) {
       case HomeState.Default: {
-        selectedTodo.value = TodoManager.getRecentlyDeletedTodo(id)
-        if (selectedTodo.value !== undefined) {
+        selectedTask.value = deletedTaskManager.findBy('id', id)
+        if (selectedTask.value !== undefined) {
           confirmRecoverModalRef.value!.showModal()
         }
         break
@@ -103,16 +101,16 @@ function todoClicked(id: number, isDeleted: boolean) {
     switch (homeState.value) {
       case HomeState.Update: {
         homeState.value = HomeState.Default
-        selectedTodo.value = TodoManager.getTodo(id)
-        if (selectedTodo.value !== undefined) {
-          updateModalRef.value!.showModal(selectedTodo.value)
+        selectedTask.value = taskManager.findBy('id', id)
+        if (selectedTask.value !== undefined) {
+          updateModalRef.value!.showModal(selectedTask.value)
         }
         break
       }
       case HomeState.Delete: {
         homeState.value = HomeState.Default
-        selectedTodo.value = TodoManager.getTodo(id)
-        if (selectedTodo.value !== undefined) {
+        selectedTask.value = taskManager.findBy('id', id)
+        if (selectedTask.value !== undefined) {
           confirmDeleteModalRef.value!.showModal()
         }
         break
@@ -123,9 +121,9 @@ function todoClicked(id: number, isDeleted: boolean) {
 
 const addTaskModalRef: Ref<InstanceType<typeof AddTaskModal> | null> = ref(null)
 
-function addTodo(todo: CreateTodo) {
-  TodoManager.createTodo(todo)
-  refreshTodos()
+function addTask(task: CreateTask) {
+  taskManager.add(task)
+  refreshTasks()
 }
 
 function addButton() {
@@ -134,9 +132,9 @@ function addButton() {
 
 const confirmClearRecentlyDeleteModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> =
   ref(null)
-function clearRecentlyDeletedTodos() {
-  TodoManager.clearRecentlyDeletedTodos()
-  refreshTodos()
+function clearRecentlyDeletedTasks() {
+  deletedTaskManager.reset()
+  refreshTasks()
 }
 </script>
 
@@ -177,43 +175,43 @@ function clearRecentlyDeletedTodos() {
       <SearchBar v-model="search" />
     </div>
 
-    <!-- List of todos working on -->
+    <!-- List of tasks working on -->
     <div class="text-xl">Active</div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
-      <TodoItem
-        v-for="todo in activeTodos"
-        :key="todo.id"
-        :todo="todo"
+      <TaskItem
+        v-for="task in activeTasks"
+        :key="task.id"
+        :task="task"
         :home-state="homeState"
         :is-deleted="false"
-        @toggle="toggleTodo"
-        @clicked="todoClicked"
+        @toggle="toggleTask"
+        @clicked="taskClicked"
         @logTimeClicked="openLogTime"
       />
     </div>
 
-    <!-- List of completed todos -->
+    <!-- List of completed tasks -->
     <div class="mt-10 text-xl">Completed</div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
-      <TodoItem
-        v-for="todo in completedTodos"
-        :key="todo.id"
-        :todo="todo"
+      <TaskItem
+        v-for="task in completedTasks"
+        :key="task.id"
+        :task="task"
         :home-state="homeState"
         :is-deleted="false"
-        @toggle="toggleTodo"
-        @clicked="todoClicked"
+        @toggle="toggleTask"
+        @clicked="taskClicked"
       />
     </div>
 
-    <!-- List of recently deleted todos -->
+    <!-- List of recently deleted tasks -->
     <div class="mt-10 flex justify-between">
       <!-- TODO: mt-3 may not be correct here... -->
-      <div class="text-xl" :class="{ 'mt-3': deletedTodos.length > 0 }">Recently Deleted</div>
+      <div class="text-xl" :class="{ 'mt-3': deletedTasks.length > 0 }">Recently Deleted</div>
       <button
-        v-if="deletedTodos.length > 0"
+        v-if="deletedTasks.length > 0"
         class="btn btn-accent"
         @click="confirmClearRecentlyDeleteModalRef!.showModal"
       >
@@ -222,44 +220,44 @@ function clearRecentlyDeletedTodos() {
     </div>
     <hr class="my-2" />
     <div class="flex flex-col gap-2">
-      <TodoItem
-        v-for="todo in filteredDeletedTodos"
-        :key="todo.id"
-        :todo="todo"
+      <TaskItem
+        v-for="task in filteredDeletedTasks"
+        :key="task.id"
+        :task="task"
         :home-state="homeState"
         :is-deleted="true"
-        @clicked="todoClicked"
+        @clicked="taskClicked"
       />
     </div>
 
-    <!-- Add a todo -->
-    <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />
+    <!-- Add a task -->
+    <AddTaskModal ref="addTaskModalRef" @add-task="addTask" />
 
-    <!-- Update a todo -->
-    <UpdateTaskModal ref="updateModalRef" @updateTodo="updateTodo" />
+    <!-- Update a task -->
+    <UpdateTaskModal ref="updateModalRef" @updateTask="updateTask" />
 
-    <!-- Confirming to clear all recently deleted todos -->
+    <!-- Confirming to clear all recently deleted tasks -->
     <ConfirmationModal
       ref="confirmClearRecentlyDeleteModalRef"
       title="Clear Recently Deleted"
-      @confirm="clearRecentlyDeletedTodos"
+      @confirm="clearRecentlyDeletedTasks"
     >
       Are you sure you want to clear the
-      <span class="font-bold">{{ deletedTodos.length }}</span> recently deleted
-      {{ deletedTodos.length == 1 ? 'todo' : 'todos' }}?
+      <span class="font-bold">{{ deletedTasks.length }}</span> recently deleted
+      {{ deletedTasks.length == 1 ? 'task' : 'tasks' }}?
     </ConfirmationModal>
 
-    <!-- Confirming to delete a todo -->
-    <ConfirmationModal ref="confirmDeleteModalRef" title="Delete Todo" @confirm="confirmDelete">
-      Are you sure you want to delete todo?
-      <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
+    <!-- Confirming to delete a task -->
+    <ConfirmationModal ref="confirmDeleteModalRef" title="Delete Task" @confirm="confirmDelete">
+      Are you sure you want to delete task?
+      <div class="pt-2 text-center font-bold">"{{ selectedTask?.description }}"</div>
       <template #confirm> Delete </template>
     </ConfirmationModal>
 
-    <!-- Confirming to recover a todo -->
-    <ConfirmationModal ref="confirmRecoverModalRef" title="Recover Todo" @confirm="confirmRecover">
-      Are you sure you want to recover todo?
-      <div class="pt-2 text-center font-bold">"{{ selectedTodo?.description }}"</div>
+    <!-- Confirming to recover a task -->
+    <ConfirmationModal ref="confirmRecoverModalRef" title="Recover Task" @confirm="confirmRecover">
+      Are you sure you want to recover task?
+      <div class="pt-2 text-center font-bold">"{{ selectedTask?.description }}"</div>
       <template #confirm> Recover </template>
     </ConfirmationModal>
     <LogTimeModal ref="logTimeModalRef" @log-time="logTime" />

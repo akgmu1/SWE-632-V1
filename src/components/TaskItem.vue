@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import type { Todo } from '@/todos'
 import { AdjustmentsHorizontalIcon } from '@heroicons/vue/24/solid'
 import { computed } from 'vue'
 import { HomeState } from '@/enums'
+import { taskManager, type Task } from '@/schemas/task'
+import { categoryManager } from '@/schemas/category'
+import { subtaskManager } from '@/schemas/subtask'
+import { timeEntryManager } from '@/schemas/timeEntry'
 
 interface Emits {
   (e: 'toggle', id: number, completed: boolean): void
   (e: 'clicked', id: number, isDeleted: boolean): void
-  (e: 'logTimeClicked', todo: Todo): void
+  (e: 'logTimeClicked', task: Task): void
 }
 
 const emits = defineEmits<Emits>()
 
 interface Props {
-  todo: Todo
+  task: Task
   isDeleted: boolean
   homeState: HomeState
 }
@@ -25,15 +28,23 @@ const homeStateDefault = computed(() => props.homeState === HomeState.Default)
 const homeStateDelete = computed(() => props.homeState === HomeState.Delete)
 const homeStateUpdate = computed(() => props.homeState === HomeState.Update)
 
-const categoryLabel = computed(() => props.todo.category?.trim() ?? '')
+const taskCategory = computed(() => {
+  return categoryManager.findBy('id', props.task.category)
+})
+
+const taskSubtasks = computed(() => {
+  return subtaskManager.filterBy('taskId', props.task.id)
+})
+
+const taskTimeEntries = computed(() => {
+  return timeEntryManager.filterBy('taskId', props.task.id)
+})
 
 const dueLabel = computed(() => {
-  const d = props.todo.dueDate
-  if (!d) return ''
+  const date = props.task.dueDate
 
   // works best if dueDate is "YYYY-MM-DD" (from <input type="date">)
-  const date = new Date(d + 'T00:00:00')
-  if (Number.isNaN(date.getTime())) return d
+  if (Number.isNaN(date.getTime())) return ''
 
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -56,42 +67,22 @@ const dueBadgeClass = computed(() => {
 
 function onChange(checked: boolean) {
   if (props.homeState == HomeState.Default && !props.isDeleted) {
-    props.todo.completed = checked
-    emits('toggle', props.todo.id, props.todo.completed)
+    props.task.completed = checked
+    emits('toggle', props.task.id, props.task.completed)
   }
 }
-function dueDiffDays(d?: string): number | null {
-  if (!d) return null
-  const date = new Date(d + 'T00:00:00')
-  if (Number.isNaN(date.getTime())) return null
 
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const diffMs = date.getTime() - today.getTime()
-  return Math.round(diffMs / (1000 * 60 * 60 * 24))
-}
-const dueClass = computed(() => {
-  const diff = dueDiffDays(props.todo.dueDate)
-  if (diff === null) return 'badge-ghost'
-  if (diff < 0) return 'badge-error'
-  if (diff === 0) return 'badge-warning'
-  if (diff <= 7) return 'badge-info'
-  return 'badge-ghost'
-})
-const totalMinutes = computed(() =>
-  (props.todo.timeEntries ?? []).reduce((sum, e) => sum + e.minutes, 0),
-)
+const totalMinutes = computed(() => taskTimeEntries.value.reduce((sum, e) => sum + e.minutes, 0))
 
 const totalHoursLabel = computed(() => {
   if (!totalMinutes.value) return ''
   return `${(totalMinutes.value / 60).toFixed(1)}h`
 })
-const subtasks = computed(() => props.todo.subtasks ?? [])
 
 const subtaskProgress = computed(() => {
-  const total = subtasks.value.length
+  const total = taskSubtasks.value.length
   if (total === 0) return ''
-  const done = subtasks.value.filter((s) => s.completed).length
+  const done = taskSubtasks.value.filter((s) => s.completed).length
   return `${done}/${total} subtasks`
 })
 </script>
@@ -100,13 +91,13 @@ const subtaskProgress = computed(() => {
   <div
     class="align-center flex items-center justify-between gap-3 rounded p-2 py-1"
     :class="{
-      'cursor-pointer hover:bg-base-300 hover:shadow':
+      'cursor-pointer': props.isDeleted || (!props.isDeleted && !homeStateDefault),
+      'hover:bg-base-300 hover:shadow':
         (props.isDeleted && homeStateDefault) || (!props.isDeleted && homeStateUpdate),
-      'cursor-pointer': !props.isDeleted && homeStateDefault, // keep default clickable if you want
       'hover:bg-error hover:text-error-content hover:shadow hover:shadow-error':
         !props.isDeleted && homeStateDelete,
     }"
-    @click="emits('clicked', props.todo.id, props.isDeleted)"
+    @click="emits('clicked', props.task.id, props.isDeleted)"
   >
     <!-- left -->
     <div class="flex min-w-0 items-center gap-3">
@@ -116,15 +107,15 @@ const subtaskProgress = computed(() => {
           'pointer-events-none': props.isDeleted || (!props.isDeleted && !homeStateDefault),
         }"
         type="checkbox"
-        :checked="props.todo.completed"
+        :checked="props.task.completed"
         @change="onChange(($event.target as HTMLInputElement).checked)"
       />
 
       <!-- category color dot -->
       <div
-        v-if="props.todo.categoryColor"
+        v-if="taskCategory"
         class="h-4 w-4 shrink-0 rounded border"
-        :style="{ backgroundColor: props.todo.categoryColor }"
+        :style="{ backgroundColor: taskCategory.color }"
       />
 
       <div class="min-w-0 flex-1">
@@ -132,9 +123,9 @@ const subtaskProgress = computed(() => {
         <div class="flex min-w-0 items-center gap-2">
           <div
             class="flex-2 truncate"
-            :class="{ 'text-base-content/70 line-through': props.todo.completed }"
+            :class="{ 'text-base-content/70 line-through': props.task.completed }"
           >
-            Todo: {{ props.todo.description }}
+            Task: {{ props.task.description }}
           </div>
 
           <span v-if="subtaskProgress" class="badge shrink-0 badge-secondary">
@@ -143,8 +134,8 @@ const subtaskProgress = computed(() => {
         </div>
 
         <!-- Row 2: subtasks list (read-only) -->
-        <div v-if="subtasks.length" class="mt-2 space-y-1 pl-1 text-sm opacity-80">
-          <div v-for="s in subtasks" :key="s.id" class="flex min-w-0 items-center gap-2">
+        <div v-if="taskSubtasks.length" class="mt-2 space-y-1 pl-1 text-sm opacity-80">
+          <div v-for="s in taskSubtasks" :key="s.id" class="flex min-w-0 items-center gap-2">
             <input class="checkbox checkbox-xs" type="checkbox" :checked="s.completed" disabled />
             <span class="flex-1 truncate" :class="{ 'line-through opacity-60': s.completed }">
               {{ s.text }}
@@ -154,7 +145,7 @@ const subtaskProgress = computed(() => {
 
         <!-- Row 3: badges + actions -->
         <div class="mt-2 flex flex-wrap items-center gap-2">
-          <span v-if="categoryLabel" class="badge badge-outline">{{ categoryLabel }}</span>
+          <span v-if="taskCategory" class="badge badge-outline">{{ taskCategory.name }}</span>
           <span v-if="totalHoursLabel" class="badge badge-neutral"
             >{{ totalHoursLabel }} worked</span
           >
@@ -162,7 +153,7 @@ const subtaskProgress = computed(() => {
           <button
             v-if="homeStateUpdate"
             class="btn btn-ghost btn-xs"
-            @click.stop="emits('logTimeClicked', props.todo)"
+            @click.stop="emits('logTimeClicked', props.task)"
           >
             Log time
           </button>
