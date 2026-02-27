@@ -1,44 +1,5 @@
 import { z, ZodObject } from 'zod'
 
-// const TimeEntrySchema = z.object({
-//   minutes: z.number(),
-//   date: z.string(), // YYYY-MM-DD
-//   note: z.string().optional(),
-// })
-
-// const SubtaskSchema = z.object({
-//   id: z.string(),
-//   text: z.string(),
-//   completed: z.boolean(),
-// })
-
-// const TodoSchema = z.object({
-//   id: z.number(),
-//   description: z.string(),
-//   completed: z.boolean(),
-//   dueDate: z.string().optional(),
-//   category: z.string().optional(),
-//   categoryColor: z.string().optional(), // e.g. '#38bdf8'
-//   timeEntries: z.array(TimeEntrySchema).optional(),
-//   subtasks: z.array(SubtaskSchema).optional(),
-// })
-// export type Subtask = z.infer<typeof SubtaskSchema>
-// export type Todo = z.infer<typeof TodoSchema>
-// const TodoArraySchema = z.array(TodoSchema)
-
-// export type CreateTodo = z.infer<typeof CreateTodoSchema>
-
-// const CreateTodoSchema = TodoSchema.omit({ id: true })
-// const TodoSettingsSchema = z.object({
-//   currentId: z.number().default(0),
-// })
-
-// type TodoSettings = z.infer<typeof TodoSettingsSchema>
-
-// const TODO_SETTINGS_KEY = 'todo-settings'
-// const TODOS_KEY = 'todos'
-// const TODOS_RECENTLY_DELETED_KEY = 'todos-recently-deleted'
-
 // TODO: Caching reads
 
 export class DataManager<TSchema extends z.ZodTypeAny> {

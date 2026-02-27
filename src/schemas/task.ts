@@ -6,7 +6,7 @@ const taskSchema = z.object({
   description: z.string(),
   completed: z.boolean(),
   category: z.number(),
-  dueDate: z.coerce.date()
+  dueDate: z.coerce.date(),
 })
 
 export type Task = z.infer<typeof taskSchema>

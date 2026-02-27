@@ -12,12 +12,12 @@ function showToast() {
   }, 3000)
 }
 
-function resetTodos() {
+function resetTasks() {
   taskManager.reset(true)
   showToast()
 }
 
-function addTestTodos() {
+function addTestTasks() {
   const TASKS: CreateTask[] = [
     {
       description: 'Test 1',
@@ -51,10 +51,10 @@ function addTestTodos() {
       <RouterLink to="/" class="btn btn-primary">Go Back Home</RouterLink>
     </div>
     <div>
-      <button @click="resetTodos" class="btn btn-primary">Reset todos</button>
+      <button @click="resetTasks" class="btn btn-primary">Reset tasks</button>
     </div>
     <div>
-      <button @click="addTestTodos" class="btn btn-primary">Add test todos</button>
+      <button @click="addTestTasks" class="btn btn-primary">Add test tasks</button>
     </div>
   </div>
   <div id="my-toast" class="toast toast-center toast-middle hidden">
