@@ -231,7 +231,7 @@ function clearRecentlyDeletedTodos() {
     <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />
 
     <!-- Update a todo -->
-    <UpdateTaskModal ref="updateModalRef" @update-todo="updateTodo" />
+    <UpdateTaskModal ref="updateModalRef" @updateTodo="updateTodo" />
 
     <!-- Confirming to clear all recently deleted todos -->
     <ConfirmationModal

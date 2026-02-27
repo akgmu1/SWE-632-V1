@@ -87,6 +87,14 @@ const totalHoursLabel = computed(() => {
   if (!totalMinutes.value) return ''
   return `${(totalMinutes.value / 60).toFixed(1)}h`
 })
+const subtasks = computed(() => props.todo.subtasks ?? [])
+
+const subtaskProgress = computed(() => {
+  const total = subtasks.value.length
+  if (total === 0) return ''
+  const done = subtasks.value.filter(s => s.completed).length
+  return `${done}/${total} subtasks`
+})
 </script>
 
 
@@ -119,24 +127,45 @@ const totalHoursLabel = computed(() => {
         :style="{ backgroundColor: props.todo.categoryColor }"
       />
 
-      <div class="min-w-0">
-        <div class="truncate" :class="{ 'text-base-content/70 line-through': props.todo.completed }">
-          Todo: {{ props.todo.description }}
-          
-        </div>
+<div class="min-w-0 flex-1">
+  <!-- Row 1: title + progress badge -->
+<div class="flex items-center gap-2 min-w-0">
+  <div
+    class="truncate flex-2"
+    :class="{ 'text-base-content/70 line-through': props.todo.completed }"
+  >
+    Todo: {{ props.todo.description }}
+  </div>
 
-        <!-- second row: category + hours -->
-        <div class="mt-1 flex flex-wrap items-center gap-2">
-          <span v-if="categoryLabel" class="badge badge-outline">{{ categoryLabel }}</span>
-          <span v-if="totalHoursLabel" class="badge badge-neutral">{{ totalHoursLabel }} worked</span>
-            <button
+  <span v-if="subtaskProgress" class="badge badge-secondary shrink-0">
+    {{ subtaskProgress }}
+  </span>
+</div>
+
+  <!-- Row 2: subtasks list (read-only) -->
+<div v-if="subtasks.length" class="mt-2 space-y-1 text-sm opacity-80 pl-1">
+    <div v-for="s in subtasks" :key="s.id" class="flex items-center gap-2 min-w-0">
+  <input class="checkbox checkbox-xs" type="checkbox" :checked="s.completed" disabled />
+  <span class="truncate flex-1" :class="{ 'line-through opacity-60': s.completed }">
+    {{ s.text }}
+  </span>
+</div>
+  </div>
+
+  <!-- Row 3: badges + actions -->
+  <div class="mt-2 flex flex-wrap items-center gap-2">
+    <span v-if="categoryLabel" class="badge badge-outline">{{ categoryLabel }}</span>
+    <span v-if="totalHoursLabel" class="badge badge-neutral">{{ totalHoursLabel }} worked</span>
+
+<button
+  v-if="homeStateUpdate"
   class="btn btn-ghost btn-xs"
   @click.stop="emits('logTimeClicked', props.todo)"
 >
   Log time
 </button>
-        </div>
-      </div>
+  </div>
+</div>
     </div>
 
     <!-- right -->
