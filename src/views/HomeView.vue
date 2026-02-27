@@ -146,23 +146,31 @@ function clearRecentlyDeletedTodos() {
       <div class="text-2xl font-semibold">To Do List</div>
 
       <div v-if="homeState == HomeState.Default" class="flex items-center gap-2">
-        <button class="btn btn-circle btn-success" @click="addButton">
-          <PlusIcon class="size-6" />
-        </button>
+        <ToolTip :direction="ToolTipDirection.Bottom" tip="Create">
+          <button class="btn btn-circle btn-success" @click="addButton">
+            <PlusIcon class="size-6" />
+          </button>
+        </ToolTip>
 
-        <button class="btn btn-circle" @click="homeState = HomeState.Update">
-          <PencilSquareIcon class="size-6" />
-        </button>
+        <ToolTip :direction="ToolTipDirection.Bottom" tip="Edit">
+          <button class="btn btn-circle" @click="homeState = HomeState.Update">
+            <PencilSquareIcon class="size-6" />
+          </button>
+        </ToolTip>
 
-        <button class="btn btn-circle btn-error" @click="homeState = HomeState.Delete">
-          <TrashIcon class="size-6" />
-        </button>
+        <ToolTip :direction="ToolTipDirection.Bottom" tip="Delete">
+          <button class="btn btn-circle btn-error" @click="homeState = HomeState.Delete">
+            <TrashIcon class="size-6" />
+          </button>
+        </ToolTip>
       </div>
 
       <div v-else>
-        <button class="btn btn-circle btn-error" @click="homeState = HomeState.Default">
-          <XMarkIcon class="size-6" />
-        </button>
+        <ToolTip :direction="ToolTipDirection.Bottom" tip="Cancel">
+          <button class="btn btn-circle btn-error" @click="homeState = HomeState.Default">
+            <XMarkIcon class="size-6" />
+          </button>
+        </ToolTip>
       </div>
     </div>
     <div class="mb-4 flex justify-center">

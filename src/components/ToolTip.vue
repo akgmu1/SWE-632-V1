@@ -51,6 +51,7 @@ watch(
     class="tooltip"
     :class="{
       'tooltip-top': props.direction == ToolTipDirection.Top,
+      'tooltip-bottom': props.direction == ToolTipDirection.Bottom,
       'tooltip-left': props.direction == ToolTipDirection.Left,
     }"
   >

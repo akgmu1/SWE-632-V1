@@ -6,5 +6,6 @@ export enum HomeState {
 
 export enum ToolTipDirection {
   Top,
+  Bottom,
   Left,
 }
