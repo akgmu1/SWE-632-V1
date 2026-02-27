@@ -2,3 +2,12 @@
 @plugin 'daisyui' {
   themes: light --default;
 }
+
+.fab-header {
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+}

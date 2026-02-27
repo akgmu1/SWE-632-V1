@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TodoItem from '@/components/TodoItem.vue'
 import SearchBar from '@/components/SearchBar.vue'
-
+import { PencilSquareIcon } from '@heroicons/vue/24/outline'
 import { computed, onMounted, ref, type Ref } from 'vue'
 import { TodoManager, type CreateTodo, type Todo } from '@/todos'
 import { HomeState, ToolTipDirection } from '@/enums'
@@ -131,10 +131,33 @@ function clearRecentlyDeletedTodos() {
 
 <template>
   <main class="container mx-auto py-4">
-    <div class="mb-3 text-2xl">To Do List</div>
+  <div class="mb-4 flex items-center justify-between">
+  <div class="text-2xl font-semibold">To Do List</div>
+
+  <div v-if="homeState == HomeState.Default" class="flex items-center gap-2">
+    <button class="btn btn-circle btn-success" @click="addButton">
+      <PlusIcon class="size-6" />
+    </button>
+
+    <button class="btn btn-circle" @click="homeState = HomeState.Update">
+     <PencilSquareIcon class="size-6" />
+    </button>
+
+    <button class="btn btn-circle btn-error" @click="homeState = HomeState.Delete">
+      <TrashIcon class="size-6" />
+    </button>
+  </div>
+
+  <div v-else>
+    <button class="btn btn-circle btn-error" @click="homeState = HomeState.Default">
+      <XMarkIcon class="size-6" />
+    </button>
+  </div>
+</div>
     <div class="mb-4 flex justify-center">
       <SearchBar v-model="search" />
     </div>
+   
 
     <!-- List of todos working on -->
     <div class="text-xl">Active</div>
@@ -190,55 +213,7 @@ function clearRecentlyDeletedTodos() {
       />
     </div>
 
-    <!-- The menu at the bottom right that switches state -->
-    <div v-if="homeState == HomeState.Default" class="fab fixed right-6 bottom-6 z-50 fab-flower">
-      <!-- The initial button -->
-      <ToolTip tabindex="0" role="button" tip="Menu">
-        <div class="btn btn-circle btn-lg btn-primary">
-          <Bars3Icon class="size-6" />
-        </div>
-      </ToolTip>
-
-      <!-- The button that is switched out -->
-      <ToolTip class="fab-close" tip="Close">
-        <div class="btn btn-circle btn-soft btn-lg btn-error">
-          <XMarkIcon class="size-6" />
-        </div>
-      </ToolTip>
-
-      <!-- All of the other buttons -->
-
-      <!-- Add a new task -->
-      <ToolTip tip="Add New" :direction="ToolTipDirection.Left">
-        <button class="btn btn-circle btn-lg btn-success" @click="addButton">
-          <PlusIcon class="size-6" />
-        </button>
-      </ToolTip>
-
-      <!-- Update a task -->
-      <ToolTip tip="Update" :direction="ToolTipDirection.Left">
-        <button class="btn btn-circle btn-lg" @click="homeState = HomeState.Update">
-          <AdjustmentsVerticalIcon class="size-6" />
-        </button>
-      </ToolTip>
-
-      <!-- Delete a task -->
-      <ToolTip tip="Delete">
-        <button class="btn btn-circle btn-lg btn-error" @click="homeState = HomeState.Delete">
-          <TrashIcon class="size-6" />
-        </button>
-      </ToolTip>
-    </div>
-    <div v-else>
-      <!-- Cancel button to go back to default state -->
-      <div class="fixed right-6 bottom-6 z-50">
-        <ToolTip tip="Cancel">
-          <div class="btn btn-circle btn-lg btn-error" @click="homeState = HomeState.Default">
-            <XMarkIcon class="size-6" />
-          </div>
-        </ToolTip>
-      </div>
-    </div>
+  
 
     <!-- Add a todo -->
     <AddTaskModal ref="addTaskModalRef" @add-todo="addTodo" />
