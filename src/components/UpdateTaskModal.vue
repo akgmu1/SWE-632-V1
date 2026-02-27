@@ -6,7 +6,7 @@ import BaseModal from './BaseModal.vue'
 import ConfirmationModal from './ConfirmationModal.vue'
 
 interface Emits {
-  (e: 'updateTask', task: Task): void
+  (e: 'updateTask', task: Task, subtask: boolean): void
 }
 
 const emits = defineEmits<Emits>()
@@ -30,6 +30,8 @@ function addSubtask() {
 
   subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
 
+  emits('updateTask', task.value, true)
+
   newSubtaskText.value = ''
 }
 
@@ -39,12 +41,18 @@ function toggleSubtask(subtask: Subtask, completed: boolean) {
   subtaskManager.updateBy('id', subtask.id, {
     completed,
   })
+
+  emits('updateTask', task.value, true)
 }
 
 function removeSubtask(subtask: Subtask) {
   if (!task.value) return
 
   subtaskManager.removeBy('id', subtask.id)
+
+  subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
+
+  emits('updateTask', task.value, true)
 }
 const modalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
 
@@ -85,10 +93,14 @@ function onConfirm(): void {
   if (descriptionErrorStr.value) {
     return
   }
-  emits('updateTask', {
-    ...task.value!,
-    description: description.value,
-  })
+  emits(
+    'updateTask',
+    {
+      ...task.value!,
+      description: description.value,
+    },
+    true,
+  )
 }
 </script>
 

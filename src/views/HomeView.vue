@@ -75,7 +75,7 @@ function confirmRecover() {
 }
 
 const updateModalRef: Ref<InstanceType<typeof UpdateTaskModal> | null> = ref(null)
-function updateTask(task: Task) {
+function updateTask(task: Task, subtask: boolean) {
   taskManager.updateBy('id', task.id, task)
   refreshTasks()
 }
