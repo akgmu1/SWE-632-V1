@@ -44,6 +44,9 @@ function loadRememberedOptions() {
   if (x === undefined) {
     return
   }
+  if (categoryManager.findBy('id', x.category) === undefined) {
+    x.category = DEFAULT_CATEGORY
+  }
   dueDate.value = x.dueDate
   selectedCategory.value = x.category
 }

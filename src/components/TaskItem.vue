@@ -6,6 +6,7 @@ import { type Task } from '@/schemas/task'
 import { timeEntryManager } from '@/schemas/timeEntry'
 import { computed } from 'vue'
 import CategoryColor from './CategoryColor.vue'
+import ToolTip from './ToolTip.vue'
 
 interface Emits {
   (e: 'toggle', id: number, completed: boolean): void
@@ -158,7 +159,9 @@ const subtaskProgress = computed(() => {
 
     <!-- right -->
     <div class="shrink-0">
-      <span v-if="dueLabel" class="badge" :class="dueBadgeClass">{{ dueLabel }}</span>
+      <ToolTip :tip="task.dueDate.toDateString()">
+        <span v-if="dueLabel" class="badge" :class="dueBadgeClass">{{ dueLabel }}</span>
+      </ToolTip>
     </div>
   </div>
 </template>

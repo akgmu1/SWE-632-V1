@@ -23,7 +23,7 @@ const cssVars = computed(() => {
 <template>
   <div
     :style="cssVars"
-    class="rounded border shrink-0 w-[--spacing(var(--category-size))] h-[--spacing(var(--category-size))] bg-(--category-background)"
+    class="rounded inline-block border shrink-0 w-[--spacing(var(--category-size))] h-[--spacing(var(--category-size))] bg-(--category-background)"
     :class="{
       // TODO: Scale with the size, stuck at current size, so stripes may not be good
       'bg-[repeating-linear-gradient(45deg,var(--color-olive-950)_0_3px,var(--color-zinc-500)_3px_6px)]':

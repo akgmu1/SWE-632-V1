@@ -2,14 +2,16 @@
 import AddTaskModal from '@/components/AddTaskModal.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import LogTimeModal from '@/components/LogTimeModal.vue'
+import ManageCategoriesModal from '@/components/ManageCategoriesModal.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import TaskItem from '@/components/TaskItem.vue'
 import ToolTip from '@/components/ToolTip.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
 import { HomeState, ToolTipDirection } from '@/enums'
+import { categoryManager, DEFAULT_CATEGORY, type Category } from '@/schemas/category'
 import { deletedTaskManager, taskManager, type CreateTask, type Task } from '@/schemas/task'
 import { timeEntryManager, type CreateTimeEntry } from '@/schemas/timeEntry'
-import { PencilSquareIcon } from '@heroicons/vue/24/outline'
+import { ArchiveBoxIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
 import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 import { computed, ref, type Ref } from 'vue'
 
@@ -127,6 +129,20 @@ function clearRecentlyDeletedTasks() {
   deletedTaskManager.reset()
   refreshTasks()
 }
+
+const manageCategoriesModalRef: Ref<InstanceType<typeof ManageCategoriesModal> | null> = ref(null)
+function updateCategory(category: Category) {
+  categoryManager.updateBy('id', category.id, category)
+  refreshTasks()
+}
+
+function deleteCategory(category: Category) {
+  categoryManager.removeBy('id', category.id)
+  taskManager.updateBy('category', category.id, {
+    category: DEFAULT_CATEGORY,
+  })
+  refreshTasks()
+}
 </script>
 
 <template>
@@ -155,11 +171,26 @@ function clearRecentlyDeletedTasks() {
       </div>
 
       <div v-else>
-        <ToolTip :direction="ToolTipDirection.Bottom" tip="Cancel">
-          <button class="btn btn-circle btn-error" @click="homeState = HomeState.Default">
-            <XMarkIcon class="size-6" />
-          </button>
-        </ToolTip>
+        <div class="flex items-center gap-2">
+          <ToolTip :direction="ToolTipDirection.Bottom" tip="Manage Categories">
+            <button
+              class="btn btn-circle"
+              @click="
+                () => {
+                  homeState = HomeState.Default
+                  manageCategoriesModalRef?.showModal()
+                }
+              "
+            >
+              <ArchiveBoxIcon class="size-6" />
+            </button>
+          </ToolTip>
+          <ToolTip :direction="ToolTipDirection.Bottom" tip="Cancel">
+            <button class="btn btn-circle btn-error" @click="homeState = HomeState.Default">
+              <XMarkIcon class="size-6" />
+            </button>
+          </ToolTip>
+        </div>
       </div>
     </div>
     <div class="mb-4 flex justify-center">
@@ -228,6 +259,13 @@ function clearRecentlyDeletedTasks() {
 
     <!-- Update a task -->
     <UpdateTaskModal ref="updateModalRef" @updateTask="updateTask" />
+
+    <!-- Manage the categories -->
+    <ManageCategoriesModal
+      ref="manageCategoriesModalRef"
+      @updateCategory="updateCategory"
+      @delete-category="deleteCategory"
+    />
 
     <!-- Confirming to clear all recently deleted tasks -->
     <ConfirmationModal
