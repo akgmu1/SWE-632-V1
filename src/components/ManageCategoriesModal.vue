@@ -27,6 +27,9 @@ function deleteCategory() {
 
   emits('deleteCategory', selectedCategory.value)
   categories.value = categoryManager.all()
+  if (categories.value.length === PERM_CATEGORIES.length) {
+    modalRef.value!.close()
+  }
 }
 
 function updateCategory() {

@@ -8,7 +8,12 @@ import TaskItem from '@/components/TaskItem.vue'
 import ToolTip from '@/components/ToolTip.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
 import { HomeState, ToolTipDirection } from '@/enums'
-import { categoryManager, DEFAULT_CATEGORY, type Category } from '@/schemas/category'
+import {
+  categoryManager,
+  DEFAULT_CATEGORY,
+  PERM_CATEGORIES,
+  type Category,
+} from '@/schemas/category'
 import { deletedTaskManager, taskManager, type CreateTask, type Task } from '@/schemas/task'
 import { timeEntryManager, type CreateTimeEntry } from '@/schemas/timeEntry'
 import { ArchiveBoxIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
@@ -28,6 +33,7 @@ function logTime(entry: CreateTimeEntry) {
 
 const homeState: Ref<HomeState> = ref(HomeState.Default)
 
+const categories: Ref<Category[]> = ref(categoryManager.all())
 const tasks: Ref<Task[]> = ref(taskManager.all())
 const deletedTasks: Ref<Task[]> = ref(deletedTaskManager.all())
 
@@ -49,6 +55,7 @@ const filteredDeletedTasks = computed(() =>
 function refreshTasks() {
   tasks.value = [...taskManager.all()]
   deletedTasks.value = [...deletedTaskManager.all()]
+  categories.value = [...categoryManager.all()]
 }
 
 function toggleTask(id: number, completed: boolean) {
@@ -172,7 +179,11 @@ function deleteCategory(category: Category) {
 
       <div v-else>
         <div class="flex items-center gap-2">
-          <ToolTip :direction="ToolTipDirection.Bottom" tip="Manage Categories">
+          <ToolTip
+            v-if="categories.length > PERM_CATEGORIES.length"
+            :direction="ToolTipDirection.Bottom"
+            tip="Manage Categories"
+          >
             <button
               class="btn btn-circle"
               @click="
