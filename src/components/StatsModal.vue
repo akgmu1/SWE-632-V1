@@ -2,7 +2,7 @@
 import { dateToYYYYMMDD, dateTrim } from '@/helper'
 import { categoryManager, type Category } from '@/schemas/category'
 import { taskManager, type Task } from '@/schemas/task'
-import { timeEntryManager } from '@/schemas/timeEntry'
+import { timeEntryManager, type TimeEntry } from '@/schemas/timeEntry'
 import {
   ArcElement,
   BarElement,
@@ -15,16 +15,40 @@ import {
   type ChartData,
   type TooltipCallbacks,
 } from 'chart.js'
-import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import BaseModal from './BaseModal.vue'
+import CategoryColor from './CategoryColor.vue'
 
 const selectedDate: Ref<Date> = ref(dateTrim(new Date()))
-const timeEntries = ref(
-  timeEntryManager.filterBy((x) => {
-    return dateToYYYYMMDD(x.date) === dateToYYYYMMDD(selectedDate.value)
-  }),
-)
+watch(selectedDate, () => {
+  timeEntries.value = computeEntries()
+})
+
+enum Filter {
+  None,
+  Date,
+}
+
+const filter: Ref<Filter> = ref(Filter.None)
+watch(filter, () => {
+  timeEntries.value = computeEntries()
+})
+
+function computeEntries(): TimeEntry[] {
+  switch (filter.value) {
+    case Filter.None: {
+      return timeEntryManager.all()
+    }
+    case Filter.Date: {
+      return timeEntryManager.filterBy((x) => {
+        return dateToYYYYMMDD(x.date) === dateToYYYYMMDD(selectedDate.value)
+      })
+    }
+  }
+}
+
+const timeEntries: Ref<TimeEntry[]> = ref(computeEntries())
 
 const associatedTask = computed(() => {
   let result = new Map<number, Task>()
@@ -54,6 +78,10 @@ const totalMinutesPerCategory = computed(() => {
 })
 
 const totalMinutes = computed(() => timeEntries.value.reduce((sum, e) => sum + e.minutes, 0))
+
+const tasks = computed(() =>
+  taskManager.filterBy((t) => timeEntries.value.some((e) => e.taskId === t.id)),
+)
 
 const totalHoursLabel = computed(() => {
   if (!totalMinutes.value) return ''
@@ -108,23 +136,71 @@ const modalRef: Ref<InstanceType<typeof BaseModal> | null> = ref(null)
 
 defineExpose({
   showModal: () => {
-    timeEntries.value = timeEntryManager.filterBy((x) => {
-      return dateToYYYYMMDD(x.date) === dateToYYYYMMDD(selectedDate.value)
-    })
+    timeEntries.value = computeEntries()
 
     modalRef.value!.showModal()
   },
   close: () => modalRef.value!.close(),
 })
+
+function computeHoursLabel(task: Task): string {
+  const totalMinutes = timeEntryManager
+    .filterBy('taskId', task.id)
+    .reduce((sum, e) => sum + e.minutes, 0)
+
+  return `${(totalMinutes / 60).toFixed(1)}h`
+}
+
+const showAll: Ref<boolean> = ref(true)
+watch(showAll, (value) => {
+  filter.value = value ? Filter.None : Filter.Date
+})
 </script>
 
 <template>
   <BaseModal ref="modalRef" title="Statistics">
-    <div class="flex">
+    <div v-if="timeEntries.length > 0" class="flex">
       <Doughnut :data="chartData" :options="chartOptions" />
     </div>
-    <div v-for="e in timeEntries" :key="e.id" class="flex">
-      <div></div>
+
+    <div class="flex justify-between mt-5">
+      <label class="label">
+        <input type="checkbox" v-model="showAll" class="checkbox" />
+        Show All
+      </label>
+      <label v-if="!showAll" class="input">
+        <span class="label">Selected Date</span>
+        <input
+          type="date"
+          :value="dateToYYYYMMDD(selectedDate)"
+          @input="
+            selectedDate = dateTrim(
+              ($event.target as HTMLInputElement).valueAsDate ?? new Date(),
+              true,
+            )
+          "
+        />
+      </label>
     </div>
+
+    <hr class="my-2" />
+
+    <div v-if="timeEntries.length > 0">
+      <div class="mt-5">
+        Total:
+        <span class="badge badge-neutral">{{ totalHoursLabel }} worked</span>
+      </div>
+
+      <div class="flex flex-col gap-2 mt-5">
+        <div v-for="t in tasks" :key="t.id">
+          <div class="flex gap-2">
+            <CategoryColor :category="categoryManager.findBy('id', t.category)" />
+            <div>Task: {{ t.title }}</div>
+            <div class="badge badge-neutral">{{ computeHoursLabel(t) }} worked</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else>No hours logged</div>
   </BaseModal>
 </template>
