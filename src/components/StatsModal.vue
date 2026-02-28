@@ -35,17 +35,24 @@ watch(filter, () => {
   timeEntries.value = computeEntries()
 })
 
+function ensureNotDeleted(input: TimeEntry[]): TimeEntry[] {
+  return input.filter((e) => taskManager.someBy((t) => t.id === e.taskId))
+}
+
 function computeEntries(): TimeEntry[] {
+  let result = []
   switch (filter.value) {
     case Filter.None: {
-      return timeEntryManager.all()
+      result = timeEntryManager.all()
     }
     case Filter.Date: {
-      return timeEntryManager.filterBy((x) => {
+      result = timeEntryManager.filterBy((x) => {
         return dateToYYYYMMDD(x.date) === dateToYYYYMMDD(selectedDate.value)
       })
     }
   }
+
+  return ensureNotDeleted(result)
 }
 
 const timeEntries: Ref<TimeEntry[]> = ref(computeEntries())
