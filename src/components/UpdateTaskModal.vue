@@ -153,7 +153,7 @@ function onConfirm(): void {
       ...task.value!,
       title: title.value,
       category: finalCategory,
-      dueDate: dueDate.value,
+      dueDate: dateTrim(dueDate.value),
     },
     true,
   )
@@ -190,7 +190,9 @@ function onConfirm(): void {
         <input
           type="date"
           :value="dateToYYYYMMDD(dueDate)"
-          @input="dueDate = dateTrim(($event.target as HTMLInputElement).valueAsDate ?? new Date())"
+          @input="
+            dueDate = dateTrim(($event.target as HTMLInputElement).valueAsDate ?? new Date(), true)
+          "
           class="input-bordered input w-full"
         />
       </div>

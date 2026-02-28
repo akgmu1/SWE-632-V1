@@ -54,7 +54,7 @@ function loadRememberedOptions() {
 function saveRememberedOptions() {
   if (!rememberOptions.value) return
   rememberedOptions.save({
-    dueDate: dueDate.value,
+    dueDate: dateTrim(dueDate.value),
     category: selectedCategory.value, // TODO: Make sure not save META add
   })
 }
@@ -160,7 +160,10 @@ function onConfirm() {
             type="date"
             :value="dateToYYYYMMDD(dueDate)"
             @input="
-              dueDate = dateTrim(($event.target as HTMLInputElement).valueAsDate ?? new Date())
+              dueDate = dateTrim(
+                ($event.target as HTMLInputElement).valueAsDate ?? new Date(),
+                true,
+              )
             "
             class="input-bordered input w-full"
           />

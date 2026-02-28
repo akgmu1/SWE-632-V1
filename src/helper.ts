@@ -3,8 +3,10 @@ export function dateToYYYYMMDD(date: Date): string | undefined {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0]
 }
 
-export function dateTrim(rawDate: Date): Date {
-  const date = new Date(rawDate.getTime() + rawDate.getTimezoneOffset() * 60000)
+export function dateTrim(rawDate: Date, addOffset: boolean = false): Date {
+  const date = addOffset
+    ? new Date(rawDate.getTime() + rawDate.getTimezoneOffset() * 60000)
+    : rawDate
   return new Date(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
