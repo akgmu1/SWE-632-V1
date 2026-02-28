@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { randomColor } from '@/helper'
+import { dateToYYYYMMDD, randomColor } from '@/helper'
 import {
   categoryManager,
   DEFAULT_CATEGORY,
@@ -21,6 +21,8 @@ const emits = defineEmits<Emits>()
 
 const task: Ref<Task | undefined> = ref(undefined)
 const subtasks: Ref<Subtask[]> = ref([])
+
+const dueDate = ref(new Date())
 
 const categories: Ref<Category[]> = ref(categoryManager.all())
 const selectedCategory = ref<number>(0)
@@ -87,6 +89,7 @@ defineExpose({
     categories.value = categoryManager.all()
     task.value = t
     subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
+    dueDate.value = t.dueDate
     title.value = t.title.trim()
     checkTitle()
     newCategoryName.value = ''
@@ -150,6 +153,7 @@ function onConfirm(): void {
       ...task.value!,
       title: title.value,
       category: finalCategory,
+      dueDate: dueDate.value,
     },
     true,
   )
@@ -168,18 +172,28 @@ function onConfirm(): void {
     :positive="true"
   >
     <div class="container mx-auto pt-4 text-center">
-      <!-- Title -->
-      <label class="w-full input">
-        <span class="label">Title</span>
-        <div class="flex justify-center">
-          <input
-            :class="{ 'input-error': titleErrorStr }"
-            :placeholder="task?.title"
-            @input="checkTitle"
-            v-model="title"
-          />
-        </div>
-      </label>
+      <div class="flex flex-col gap-4 sm:flex-row">
+        <!-- Title -->
+        <label class="w-full input">
+          <span class="label">Title</span>
+          <div class="flex justify-center">
+            <input
+              :class="{ 'input-error': titleErrorStr }"
+              :placeholder="task?.title"
+              @input="checkTitle"
+              v-model="title"
+            />
+          </div>
+        </label>
+
+        <!-- Date -->
+        <input
+          type="date"
+          :value="dateToYYYYMMDD(dueDate)"
+          @input="dueDate = ($event.target as HTMLInputElement).valueAsDate ?? new Date()"
+          class="input-bordered input w-full"
+        />
+      </div>
       <div :hidden="!titleErrorStr" class="text-error">Error: {{ titleErrorStr }}</div>
 
       <div class="mx-auto flex items-center gap-3 mt-6">
