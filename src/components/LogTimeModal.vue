@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { dateToYYYYMMDD } from '@/helper'
+import { dateToYYYYMMDD, dateTrim } from '@/helper'
 import type { Task } from '@/schemas/task'
 import type { CreateTimeEntry } from '@/schemas/timeEntry'
 import { computed, ref, type Ref } from 'vue'
@@ -25,7 +25,7 @@ function onConfirm() {
 
   emits('logTime', {
     taskId: task.value.id,
-    date: selectedDate.value,
+    date: dateTrim(selectedDate.value),
     minutes: minutes.value,
     note: '',
   })
@@ -74,7 +74,12 @@ defineExpose({
           <input
             type="date"
             :value="dateToYYYYMMDD(selectedDate)"
-            @input="selectedDate = ($event.target as HTMLInputElement).valueAsDate ?? new Date()"
+            @input="
+              selectedDate = dateTrim(
+                ($event.target as HTMLInputElement).valueAsDate ?? new Date(),
+                true,
+              )
+            "
             class="input-bordered input w-full"
           />
         </label>

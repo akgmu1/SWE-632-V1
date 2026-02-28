@@ -88,6 +88,7 @@ defineExpose({
   showModal: (t: Task) => {
     categories.value = categoryManager.all()
     task.value = t
+    selectedCategory.value = t.category
     subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
     dueDate.value = t.dueDate
     title.value = t.title.trim()

@@ -8,12 +8,7 @@ import TaskItem from '@/components/TaskItem.vue'
 import ToolTip from '@/components/ToolTip.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
 import { HomeState, ToolTipDirection } from '@/enums'
-import {
-  categoryManager,
-  DEFAULT_CATEGORY,
-  PERM_CATEGORIES,
-  type Category,
-} from '@/schemas/category'
+import { categoryManager, PERM_CATEGORIES, type Category } from '@/schemas/category'
 import { deletedTaskManager, taskManager, type CreateTask, type Task } from '@/schemas/task'
 import { timeEntryManager, type CreateTimeEntry } from '@/schemas/timeEntry'
 import { ArchiveBoxIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
@@ -67,15 +62,15 @@ const selectedTask: Ref<Task | undefined> = ref(undefined)
 
 const confirmDeleteModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> = ref(null)
 function confirmDelete() {
-  taskManager.removeBy('id', selectedTask.value!.id)
   deletedTaskManager.add(selectedTask.value!)
+  taskManager.removeBy('id', selectedTask.value!.id)
   refreshTasks()
 }
 
 const confirmRecoverModalRef: Ref<InstanceType<typeof ConfirmationModal> | null> = ref(null)
 function confirmRecover() {
-  deletedTaskManager.removeBy('id', selectedTask.value!.id)
   taskManager.insert(selectedTask.value!)
+  deletedTaskManager.removeBy('id', selectedTask.value!.id)
   refreshTasks()
 }
 
@@ -145,9 +140,6 @@ function updateCategory(category: Category) {
 
 function deleteCategory(category: Category) {
   categoryManager.removeBy('id', category.id)
-  taskManager.updateBy('category', category.id, {
-    category: DEFAULT_CATEGORY,
-  })
   refreshTasks()
 }
 </script>

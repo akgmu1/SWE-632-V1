@@ -1,18 +1,45 @@
 import { z, ZodObject } from 'zod'
 
-// TODO: Caching reads
+type ManagerHooks<T> = {
+  onStartup?: (data: T) => void
+  onUpdate?: (oldData: T, newData: T) => void
+  onDelete?: (data: T) => void
+}
 
+type Predicate<T> = (item: T) => boolean
+
+// TODO: Caching reads
 export class DataManager<TSchema extends z.ZodTypeAny> {
   protected schema: TSchema
   protected key: string
+  protected hooks?: ManagerHooks<z.infer<TSchema>>
 
-  constructor(schema: TSchema, key: string) {
+  constructor(schema: TSchema, key: string, hooks?: ManagerHooks<z.infer<TSchema>>) {
     this.schema = schema
     this.key = key
+    this.hooks = hooks
+
+    const data = this.load()
+    if (data !== undefined) {
+      this.hooks?.onStartup?.(data)
+    }
+  }
+
+  public installHooks(hooks: ManagerHooks<z.infer<TSchema>>) {
+    this.hooks = {
+      ...this.hooks,
+      ...hooks,
+    }
   }
 
   public reset() {
+    const prevData = this.load()
+
     localStorage.removeItem(this.key)
+
+    if (prevData !== undefined) {
+      this.hooks?.onDelete?.(prevData)
+    }
   }
 
   public load(): z.infer<TSchema> | undefined {
@@ -25,15 +52,25 @@ export class DataManager<TSchema extends z.ZodTypeAny> {
   }
 
   public save(input: z.infer<TSchema>) {
+    const prevData = this.load()
+
     localStorage.setItem(this.key, JSON.stringify(input))
+
+    if (prevData !== undefined) {
+      this.hooks?.onUpdate?.(prevData, input)
+    }
   }
 }
 
 export class ArrayDataManager<TObjectSchema extends ZodObject<any>> extends DataManager<
   z.ZodArray<TObjectSchema>
 > {
-  constructor(elementSchema: TObjectSchema, key: string) {
-    super(z.array(elementSchema), key)
+  constructor(
+    elementSchema: TObjectSchema,
+    key: string,
+    hooks?: ManagerHooks<z.infer<TObjectSchema>[]>,
+  ) {
+    super(z.array(elementSchema), key, hooks)
   }
 
   public override load(): z.infer<TObjectSchema>[] {
@@ -60,19 +97,42 @@ export class ArrayDataManager<TObjectSchema extends ZodObject<any>> extends Data
   }
 
   public findBy<K extends keyof z.infer<TObjectSchema>>(
-    field: K,
-    value: z.infer<TObjectSchema>[K],
+    fieldOrPredicate: K | Predicate<z.infer<TObjectSchema>>,
+    value?: z.infer<TObjectSchema>[K],
   ): z.infer<TObjectSchema> | undefined {
-    return this.all().find((item) => item[field] === value)
+    const data = this.all()
+    if (typeof fieldOrPredicate === 'function') {
+      return data.find(fieldOrPredicate)
+    } else {
+      return data.find((item) => item[fieldOrPredicate] === value)
+    }
+  }
+
+  public someBy<K extends keyof z.infer<TObjectSchema>>(
+    fieldOrPredicate: K | Predicate<z.infer<TObjectSchema>>,
+    value?: z.infer<TObjectSchema>[K],
+  ): boolean {
+    const data = this.all()
+    if (typeof fieldOrPredicate === 'function') {
+      return data.some(fieldOrPredicate)
+    } else {
+      return data.some((item) => item[fieldOrPredicate] === value)
+    }
   }
 
   public filterBy<K extends keyof z.infer<TObjectSchema>>(
-    field: K,
-    value: z.infer<TObjectSchema>[K],
+    fieldOrPredicate: K | Predicate<z.infer<TObjectSchema>>,
+    value?: z.infer<TObjectSchema>[K],
   ): z.infer<TObjectSchema>[] {
-    return this.all().filter((item) => item[field] === value)
+    const data = this.all()
+    if (typeof fieldOrPredicate === 'function') {
+      return data.filter(fieldOrPredicate)
+    } else {
+      return data.filter((item) => item[fieldOrPredicate] === value)
+    }
   }
 
+  // TODO: Change into allowing a predicate
   public updateBy<K extends keyof z.infer<TObjectSchema>>(
     field: K,
     value: z.infer<TObjectSchema>[K],
@@ -80,6 +140,7 @@ export class ArrayDataManager<TObjectSchema extends ZodObject<any>> extends Data
       | Partial<z.infer<TObjectSchema>>
       | ((old: z.infer<TObjectSchema>) => z.infer<TObjectSchema>),
   ) {
+    const oldData = this.filterBy(field, value)
     const updated = this.all().map((item) => {
       if (item[field] === value) {
         if (typeof updater === 'function') {
@@ -90,15 +151,30 @@ export class ArrayDataManager<TObjectSchema extends ZodObject<any>> extends Data
       }
       return item
     })
+    const newData = this.filterBy(field, value)
     this.save(updated)
+
+    this.hooks?.onUpdate?.(oldData, newData)
   }
 
   public removeBy<K extends keyof z.infer<TObjectSchema>>(
-    field: K,
-    value: z.infer<TObjectSchema>[K],
+    fieldOrPredicate: K | Predicate<z.infer<TObjectSchema>>,
+    value?: z.infer<TObjectSchema>[K],
   ) {
-    const filtered = this.all().filter((item) => item[field] !== value)
+    const removed = this.filterBy(fieldOrPredicate, value)
+
+    let filtered: z.infer<TObjectSchema>[]
+    const data = this.all()
+
+    if (typeof fieldOrPredicate === 'function') {
+      filtered = data.filter((item) => !fieldOrPredicate(item))
+    } else {
+      filtered = data.filter((item) => item[fieldOrPredicate] !== value)
+    }
+
     this.save(filtered)
+
+    this.hooks?.onDelete?.(removed)
   }
 }
 
@@ -107,8 +183,12 @@ export class IdArrayDataManager<
 > extends ArrayDataManager<TObjectSchema> {
   private counterKey: string
 
-  constructor(elementSchema: TObjectSchema, key: string) {
-    super(elementSchema, key)
+  constructor(
+    elementSchema: TObjectSchema,
+    key: string,
+    hooks?: ManagerHooks<z.infer<TObjectSchema>[]>,
+  ) {
+    super(elementSchema, key, hooks)
     this.counterKey = `${key}-id-counter`
   }
 

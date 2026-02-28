@@ -1,6 +1,7 @@
 import { IdArrayDataManager } from '@/data'
 import z from 'zod'
 import { colorHexSchema } from './color'
+import { taskManager } from './task'
 
 const categorySchema = z.object({
   id: z.number(),
@@ -35,4 +36,14 @@ export const DEFAULT_CATEGORY = ensure('default', {
 
 export const META_ADD_NEW_CATEGORY = ensure('__add_new', {
   color: '#000000',
+})
+
+categoryManager.installHooks({
+  onDelete: (categories) => {
+    for (const category of categories) {
+      taskManager.updateBy('category', category.id, {
+        category: DEFAULT_CATEGORY,
+      })
+    }
+  },
 })
