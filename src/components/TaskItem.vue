@@ -92,7 +92,7 @@ const subtaskProgress = computed(() => {
     :class="{
       'cursor-pointer': props.isDeleted || (!props.isDeleted && !homeStateDefault),
       'hover:bg-base-300 hover:shadow':
-        (props.isDeleted && homeStateDefault) || (!props.isDeleted && homeStateUpdate),
+        (props.isDeleted && homeStateDelete) || (!props.isDeleted && homeStateUpdate),
       'hover:bg-error hover:text-error-content hover:shadow hover:shadow-error':
         !props.isDeleted && homeStateDelete,
     }"

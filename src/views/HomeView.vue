@@ -83,7 +83,8 @@ function updateTask(task: Task, subtask: boolean) {
 function taskClicked(id: number, isDeleted: boolean) {
   if (isDeleted) {
     switch (homeState.value) {
-      case HomeState.Default: {
+      case HomeState.Delete: {
+        homeState.value = HomeState.Default
         selectedTask.value = deletedTaskManager.findBy('id', id)
         if (selectedTask.value !== undefined) {
           confirmRecoverModalRef.value!.showModal()
@@ -201,27 +202,29 @@ function clearRecentlyDeletedTasks() {
     </div>
 
     <!-- List of recently deleted tasks -->
-    <div class="mt-10 flex justify-between">
-      <!-- TODO: mt-3 may not be correct here... -->
-      <div class="text-xl" :class="{ 'mt-3': deletedTasks.length > 0 }">Recently Deleted</div>
-      <button
-        v-if="deletedTasks.length > 0"
-        class="btn btn-accent"
-        @click="confirmClearRecentlyDeleteModalRef!.showModal"
-      >
-        Clear
-      </button>
-    </div>
-    <hr class="my-2" />
-    <div class="flex flex-col gap-2">
-      <TaskItem
-        v-for="task in filteredDeletedTasks"
-        :key="task.id"
-        :task="task"
-        :home-state="homeState"
-        :is-deleted="true"
-        @clicked="taskClicked"
-      />
+    <div v-if="homeState === HomeState.Delete">
+      <div class="mt-10 flex justify-between">
+        <!-- TODO: mt-3 may not be correct here... -->
+        <div class="text-xl" :class="{ 'mt-3': deletedTasks.length > 0 }">Recently Deleted</div>
+        <button
+          v-if="deletedTasks.length > 0"
+          class="btn btn-accent"
+          @click="confirmClearRecentlyDeleteModalRef!.showModal"
+        >
+          Clear
+        </button>
+      </div>
+      <hr class="my-2" />
+      <div class="flex flex-col gap-2">
+        <TaskItem
+          v-for="task in filteredDeletedTasks"
+          :key="task.id"
+          :task="task"
+          :home-state="homeState"
+          :is-deleted="true"
+          @clicked="taskClicked"
+        />
+      </div>
     </div>
 
     <!-- Add a task -->
