@@ -31,7 +31,7 @@ function ensure(name: string, category: Omit<Omit<Category, 'id'>, 'name'>): num
 }
 
 export const DEFAULT_CATEGORY = ensure('default', {
-  color: '#112233',
+  color: '#3e3e29',
 })
 
 export const META_ADD_NEW_CATEGORY = ensure('__add_new', {

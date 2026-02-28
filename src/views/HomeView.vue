@@ -4,6 +4,7 @@ import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import LogTimeModal from '@/components/LogTimeModal.vue'
 import ManageCategoriesModal from '@/components/ManageCategoriesModal.vue'
 import SearchBar from '@/components/SearchBar.vue'
+import StatsModal from '@/components/StatsModal.vue'
 import TaskItem from '@/components/TaskItem.vue'
 import ToolTip from '@/components/ToolTip.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
@@ -11,7 +12,11 @@ import { HomeState, ToolTipDirection } from '@/enums'
 import { categoryManager, PERM_CATEGORIES, type Category } from '@/schemas/category'
 import { deletedTaskManager, taskManager, type CreateTask, type Task } from '@/schemas/task'
 import { timeEntryManager, type CreateTimeEntry } from '@/schemas/timeEntry'
-import { ArchiveBoxIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
+import {
+  ArchiveBoxIcon,
+  PencilSquareIcon,
+  PresentationChartLineIcon,
+} from '@heroicons/vue/24/outline'
 import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 import { computed, ref, type Ref } from 'vue'
 
@@ -142,6 +147,8 @@ function deleteCategory(category: Category) {
   categoryManager.removeBy('id', category.id)
   refreshTasks()
 }
+
+const statsModalRef: Ref<InstanceType<typeof StatsModal> | null> = ref(null)
 </script>
 
 <template>
@@ -150,6 +157,12 @@ function deleteCategory(category: Category) {
       <div class="text-2xl font-semibold">To Do List</div>
 
       <div v-if="homeState == HomeState.Default" class="flex items-center gap-2">
+        <ToolTip :direction="ToolTipDirection.Bottom" tip="Statistics">
+          <button class="btn btn-circle btn-info" @click="statsModalRef?.showModal()">
+            <PresentationChartLineIcon class="size-6" />
+          </button>
+        </ToolTip>
+
         <ToolTip :direction="ToolTipDirection.Bottom" tip="Create">
           <button class="btn btn-circle btn-success" @click="addButton">
             <PlusIcon class="size-6" />
@@ -256,6 +269,9 @@ function deleteCategory(category: Category) {
         />
       </div>
     </div>
+
+    <!-- Statistics -->
+    <StatsModal ref="statsModalRef" />
 
     <!-- Add a task -->
     <AddTaskModal ref="addTaskModalRef" @add-task="addTask" />
