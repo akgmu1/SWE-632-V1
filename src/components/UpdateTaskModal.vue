@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { dateToYYYYMMDD, randomColor } from '@/helper'
+import { dateToYYYYMMDD, dateTrim, randomColor } from '@/helper'
 import {
   categoryManager,
   DEFAULT_CATEGORY,
@@ -190,7 +190,7 @@ function onConfirm(): void {
         <input
           type="date"
           :value="dateToYYYYMMDD(dueDate)"
-          @input="dueDate = ($event.target as HTMLInputElement).valueAsDate ?? new Date()"
+          @input="dueDate = dateTrim(($event.target as HTMLInputElement).valueAsDate ?? new Date())"
           class="input-bordered input w-full"
         />
       </div>

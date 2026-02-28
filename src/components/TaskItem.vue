@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { HomeState } from '@/enums'
+import { dateTrim } from '@/helper'
 import { categoryManager } from '@/schemas/category'
 import { subtaskManager } from '@/schemas/subtask'
 import { type Task } from '@/schemas/task'
@@ -41,13 +42,13 @@ const taskTimeEntries = computed(() => {
 })
 
 const dueLabel = computed(() => {
-  const date = props.task.dueDate
+  const rawDate = props.task.dueDate
 
   // works best if dueDate is "YYYY-MM-DD" (from <input type="date">)
-  if (Number.isNaN(date.getTime())) return ''
+  if (Number.isNaN(rawDate.getTime())) return ''
+  const date = dateTrim(new Date())
 
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const today = dateTrim(new Date())
   const diffMs = date.getTime() - today.getTime()
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
 
