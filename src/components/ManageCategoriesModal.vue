@@ -75,7 +75,7 @@ const canConfirm = computed(() => name.value.trim().length > 0)
 
 <template>
   <BaseModal ref="modalRef" title="Manage Categories">
-    <div class="flex flex-col gap-2">
+    <div v-if="categories.length > PERM_CATEGORIES.length" class="flex flex-col gap-2">
       <div v-for="c in categories" :key="c.id">
         <div v-if="!PERM_CATEGORIES.some((x) => x === c.id)" class="flex justify-between">
           <div class="flex gap-2 align-middle">
@@ -115,6 +115,7 @@ const canConfirm = computed(() => name.value.trim().length > 0)
         </div>
       </div>
     </div>
+    <div v-else>No custom categories</div>
 
     <ConfirmationModal
       ref="updateModalRef"

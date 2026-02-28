@@ -9,7 +9,7 @@ import TaskItem from '@/components/TaskItem.vue'
 import ToolTip from '@/components/ToolTip.vue'
 import UpdateTaskModal from '@/components/UpdateTaskModal.vue'
 import { HomeState, ToolTipDirection } from '@/enums'
-import { categoryManager, PERM_CATEGORIES, type Category } from '@/schemas/category'
+import { categoryManager, type Category } from '@/schemas/category'
 import { deletedTaskManager, taskManager, type CreateTask, type Task } from '@/schemas/task'
 import { timeEntryManager, type CreateTimeEntry } from '@/schemas/timeEntry'
 import {
@@ -184,11 +184,7 @@ const statsModalRef: Ref<InstanceType<typeof StatsModal> | null> = ref(null)
 
       <div v-else>
         <div class="flex items-center gap-2">
-          <ToolTip
-            v-if="categories.length > PERM_CATEGORIES.length"
-            :direction="ToolTipDirection.Bottom"
-            tip="Manage Categories"
-          >
+          <ToolTip :direction="ToolTipDirection.Bottom" tip="Manage Categories">
             <button
               class="btn btn-circle"
               @click="
