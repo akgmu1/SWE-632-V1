@@ -46,7 +46,7 @@ const dueLabel = computed(() => {
 
   // works best if dueDate is "YYYY-MM-DD" (from <input type="date">)
   if (Number.isNaN(rawDate.getTime())) return ''
-  const date = dateTrim(new Date())
+  const date = dateTrim(rawDate)
 
   const today = dateTrim(new Date())
   const diffMs = date.getTime() - today.getTime()
