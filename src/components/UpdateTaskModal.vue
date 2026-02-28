@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ToolTipDirection } from '@/enums'
 import { dateToYYYYMMDD, dateTrim, randomColor } from '@/helper'
 import {
   categoryManager,
@@ -12,6 +13,7 @@ import { computed, onMounted, ref, type Ref } from 'vue'
 import BaseModal from './BaseModal.vue'
 import CategoryColor from './CategoryColor.vue'
 import ConfirmationModal from './ConfirmationModal.vue'
+import ToolTip from './ToolTip.vue'
 
 interface Emits {
   (e: 'updateTask', task: Task, subtask: boolean): void
@@ -136,13 +138,10 @@ function onConfirm(): void {
 
   if (isAddingNewCategory.value) {
     const newName = newCategoryName.value.trim()
-    const exists = categoryManager.findBy('name', newName)
-    if (!exists) {
-      finalCategory = categoryManager.add({
-        name: newName,
-        color: newCategoryColor.value,
-      })
-    }
+    finalCategory = categoryManager.add({
+      name: newName,
+      color: newCategoryColor.value,
+    })
     selectedCategory.value = finalCategory
   } else {
     finalCategory = selectedCategory.value
@@ -215,7 +214,18 @@ function onConfirm(): void {
         </select>
       </div>
       <div v-if="isAddingNewCategory" class="flex items-center gap-3 mt-6">
-        <CategoryColor :color="newCategoryColor" />
+        <ToolTip tip="Change Color" :direction="ToolTipDirection.Right">
+          <button
+            @click="
+              () => {
+                newCategoryColor = randomColor()
+              }
+            "
+            class="cursor-pointer"
+          >
+            <CategoryColor :color="newCategoryColor" />
+          </button>
+        </ToolTip>
         <input
           v-model="newCategoryName"
           type="text"

@@ -8,4 +8,5 @@ export enum ToolTipDirection {
   Top,
   Bottom,
   Left,
+  Right,
 }

@@ -53,6 +53,7 @@ watch(
       'tooltip-top': props.direction == ToolTipDirection.Top,
       'tooltip-bottom': props.direction == ToolTipDirection.Bottom,
       'tooltip-left': props.direction == ToolTipDirection.Left,
+      'tooltip-right': props.direction == ToolTipDirection.Right,
     }"
   >
     <div class="tooltip-content">
