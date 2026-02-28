@@ -20,19 +20,19 @@ function resetTasks() {
 function addTestTasks() {
   const TASKS: CreateTask[] = [
     {
-      description: 'Test 1',
+      title: 'Test 1',
       completed: false,
       category: DEFAULT_CATEGORY,
       dueDate: new Date(),
     },
     {
-      description: 'Test 2',
+      title: 'Test 2',
       completed: true,
       category: DEFAULT_CATEGORY,
       dueDate: new Date(),
     },
     {
-      description: 'Test 3',
+      title: 'Test 3',
       completed: false,
       category: DEFAULT_CATEGORY,
       dueDate: new Date(),

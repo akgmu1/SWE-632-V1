@@ -120,7 +120,7 @@ const subtaskProgress = computed(() => {
             class="flex-2 truncate"
             :class="{ 'text-base-content/70 line-through': props.task.completed }"
           >
-            Task: {{ props.task.description }}
+            Task: {{ props.task.title }}
           </div>
 
           <span v-if="subtaskProgress" class="badge shrink-0 badge-secondary">

@@ -87,8 +87,8 @@ defineExpose({
     categories.value = categoryManager.all()
     task.value = t
     subtasks.value = subtaskManager.filterBy('taskId', task.value.id)
-    description.value = t.description.trim()
-    checkDescription()
+    title.value = t.title.trim()
+    checkTitle()
     newCategoryName.value = ''
     newCategoryColor.value = randomColor()
     modalRef.value!.showModal()
@@ -98,27 +98,27 @@ defineExpose({
   },
 })
 
-const description: Ref<string> = ref('')
-const descriptionErrorStr: Ref<string> = ref('')
-const hadError = computed(() => descriptionErrorStr.value)
+const title: Ref<string> = ref('')
+const titleErrorStr: Ref<string> = ref('')
+const hadError = computed(() => titleErrorStr.value)
 
-async function checkDescription() {
-  descriptionErrorStr.value = ''
+async function checkTitle() {
+  titleErrorStr.value = ''
 
-  const trimmed = description.value.trim()
+  const trimmed = title.value.trim()
   if (trimmed.length === 0) {
-    descriptionErrorStr.value = 'Description can not be empty'
+    titleErrorStr.value = 'Title can not be empty'
     return
   }
 }
 
 onMounted(() => {
-  checkDescription()
+  checkTitle()
 })
 
 const canConfirm = computed(() => {
   if (hadError.value) return false
-  if (!description.value.trim()) return false
+  if (!title.value.trim()) return false
   if (isAddingNewCategory.value) {
     return newCategoryName.value.trim().length > 0
   }
@@ -148,7 +148,7 @@ function onConfirm(): void {
     'updateTask',
     {
       ...task.value!,
-      description: description.value,
+      title: title.value,
       category: finalCategory,
     },
     true,
@@ -168,19 +168,19 @@ function onConfirm(): void {
     :positive="true"
   >
     <div class="container mx-auto pt-4 text-center">
-      <!-- Description -->
+      <!-- Title -->
       <label class="w-full input">
-        <span class="label">Description</span>
+        <span class="label">Title</span>
         <div class="flex justify-center">
           <input
-            :class="{ 'input-error': descriptionErrorStr }"
-            :placeholder="task?.description"
-            @input="checkDescription"
-            v-model="description"
+            :class="{ 'input-error': titleErrorStr }"
+            :placeholder="task?.title"
+            @input="checkTitle"
+            v-model="title"
           />
         </div>
       </label>
-      <div :hidden="!descriptionErrorStr" class="text-error">Error: {{ descriptionErrorStr }}</div>
+      <div :hidden="!titleErrorStr" class="text-error">Error: {{ titleErrorStr }}</div>
 
       <div class="mx-auto flex items-center gap-3 mt-6">
         <CategoryColor :category="currentCategory" />

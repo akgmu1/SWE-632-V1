@@ -113,7 +113,7 @@ function onConfirm() {
   const text = title.value.trim()
 
   emits('addTask', {
-    description: text,
+    title: text,
     completed: false,
     dueDate: dueDate.value,
     category: finalCategory,
@@ -131,7 +131,6 @@ function onConfirm() {
   newCategoryName.value = ''
   newCategoryColor.value = randomColor()
 }
-
 </script>
 
 <template>

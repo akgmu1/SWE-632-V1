@@ -55,7 +55,7 @@ defineExpose({
   >
     <div class="space-y-4">
       <div class="text-sm opacity-70">
-        Task: <span class="font-semibold">{{ task?.description }}</span>
+        Task: <span class="font-semibold">{{ task?.title }}</span>
       </div>
 
       <div class="grid grid-cols-2 gap-3">

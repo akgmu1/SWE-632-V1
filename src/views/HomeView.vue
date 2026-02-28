@@ -33,19 +33,15 @@ const q = computed(() => search.value.trim().toLowerCase())
 const search = ref('')
 
 const activeTasks = computed(() =>
-  tasks.value.filter(
-    (t) => !t.completed && (!q.value || t.description.toLowerCase().includes(q.value)),
-  ),
+  tasks.value.filter((t) => !t.completed && (!q.value || t.title.toLowerCase().includes(q.value))),
 )
 
 const completedTasks = computed(() =>
-  tasks.value.filter(
-    (t) => t.completed && (!q.value || t.description.toLowerCase().includes(q.value)),
-  ),
+  tasks.value.filter((t) => t.completed && (!q.value || t.title.toLowerCase().includes(q.value))),
 )
 
 const filteredDeletedTasks = computed(() =>
-  deletedTasks.value.filter((t) => !q.value || t.description.toLowerCase().includes(q.value)),
+  deletedTasks.value.filter((t) => !q.value || t.title.toLowerCase().includes(q.value)),
 )
 
 function refreshTasks() {
@@ -247,14 +243,14 @@ function clearRecentlyDeletedTasks() {
     <!-- Confirming to delete a task -->
     <ConfirmationModal ref="confirmDeleteModalRef" title="Delete Task" @confirm="confirmDelete">
       Are you sure you want to delete task?
-      <div class="pt-2 text-center font-bold">"{{ selectedTask?.description }}"</div>
+      <div class="pt-2 text-center font-bold">"{{ selectedTask?.title }}"</div>
       <template #confirm> Delete </template>
     </ConfirmationModal>
 
     <!-- Confirming to recover a task -->
     <ConfirmationModal ref="confirmRecoverModalRef" title="Recover Task" @confirm="confirmRecover">
       Are you sure you want to recover task?
-      <div class="pt-2 text-center font-bold">"{{ selectedTask?.description }}"</div>
+      <div class="pt-2 text-center font-bold">"{{ selectedTask?.title }}"</div>
       <template #confirm> Recover </template>
     </ConfirmationModal>
     <LogTimeModal ref="logTimeModalRef" @log-time="logTime" />

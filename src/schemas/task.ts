@@ -3,7 +3,7 @@ import z from 'zod'
 
 const taskSchema = z.object({
   id: z.number(),
-  description: z.string(),
+  title: z.string(),
   completed: z.boolean(),
   category: z.number(),
   dueDate: z.coerce.date(),
