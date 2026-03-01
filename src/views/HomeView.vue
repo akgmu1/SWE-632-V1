@@ -154,7 +154,7 @@ const statsModalRef: Ref<InstanceType<typeof StatsModal> | null> = ref(null)
 <template>
   <main class="container mx-auto py-4">
     <div class="mb-4 flex items-center justify-between">
-      <div class="text-2xl font-semibold">To Do List</div>
+      <div class="text-2xl font-semibold">Task Manager</div>
 
       <div v-if="homeState == HomeState.Default" class="flex items-center gap-2">
         <ToolTip :direction="ToolTipDirection.Bottom" tip="Statistics">
