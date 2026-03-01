@@ -44,11 +44,13 @@ function computeEntries(): TimeEntry[] {
   switch (filter.value) {
     case Filter.None: {
       result = timeEntryManager.all()
+      break
     }
     case Filter.Date: {
       result = timeEntryManager.filterBy((x) => {
         return dateToYYYYMMDD(x.date) === dateToYYYYMMDD(selectedDate.value)
       })
+      break
     }
   }
 
